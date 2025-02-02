@@ -1,0 +1,14 @@
+title
+poster_path
+first_air_date
+genres
+number_of_episodes
+number_of_seasons
+overview
+popularity
+tagline
+video
+vote_average
+vote_count
+
+736f5908ef30f67dac3de42d1b991cbd

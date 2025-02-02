@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+/* Menghilangkan scrollbar di seluruh halaman */
+
+/* Sembunyikan scrollbar di seluruh halaman */
+body {
+    overflow: auto; /* Pastikan konten bisa discroll */
+}
+
+/* Sembunyikan scrollbar secara spesifik pada elemen tertentu */
+.scrollbar-hidden {
+    -ms-overflow-style: none;  /* Untuk Internet Explorer 10+ */
+    scrollbar-width: none;  /* Untuk Firefox */
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;  /* Untuk Chrome, Safari, dan Edge */
+}
+
+
