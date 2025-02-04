@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     @vite('resources/css/app.css')
 </head>
-<body class="overflow-y-auto w-full overflow-hidden bg-gradient-to-r from-black via-gray-900 to-black ">
+<body class="overflow-y-auto w-full overflow-hidden bg-gradient-to-r from-black via-gray-900 to-black  bg-cover bg-center">
+
 
     <!-- Navbar -->
     @include('components.navbar')

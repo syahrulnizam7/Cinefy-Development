@@ -1,52 +1,84 @@
 @extends('layouts.app')
 
 @section('content')
+
+    <!-- Tambahkan Typed.js di Head atau sebelum penutup </body> -->
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+
     <!-- Hero Section -->
     <section class="relative text-white mt-28 lg:mt-24 lg:-mb-12 sm:mt-32">
-        <div class="container mx-auto px-6 lg:px-15">
-            <div class="relative flex flex-col lg:grid lg:grid-cols-2 gap-12 items-center">
-
-                <!-- Bagian Kiri (Text) - Muncul hanya di Desktop -->
-                <div class="hidden lg:block">
-                    <h1 class="text-4xl md:text-6xl font-bold leading-tight">Track Your Favorite <span
-                            class="text-blue-500">Movies, Series & Anime</span></h1>
-                    <p class="text-lg mt-6 opacity-80">Manage your watched content, discover new shows, and add to your
-                        collection seamlessly.</p>
-                    <div class="mt-8 flex gap-4">
-                        <a href="#"
-                            class="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">Start
-                            Watching</a>
-                        <a href="#"
-                            class="border border-blue-600 text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">Explore
-                            Now</a>
-                    </div>
+        <div class="relative flex flex-col lg:grid lg:grid-cols-2 gap-12 items-center w-full">
+            
+            <!-- Bagian Kiri (Text) - Muncul hanya di Desktop -->
+            <div class="hidden lg:block px-6 lg:px-15">
+                <h1 class="text-4xl md:text-6xl font-bold leading-tight">
+                    Track Your Favorite
+                    <span class="text-blue-500" id="typing-text"></span>
+                </h1>
+                <p class="text-lg mt-6 opacity-80">
+                    Manage your watched content, discover new shows, and add to your collection seamlessly.
+                </p>
+                <div class="mt-8 flex gap-4">
+                    <a href="#"
+                        class="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">
+                        Start Watching
+                    </a>
+                    <a href="#"
+                        class="border border-blue-600 text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">
+                        Explore Now
+                    </a>
                 </div>
-
-                <!-- Bagian Kanan (Gambar) - Muncul dulu di Mobile -->
-                <div class="  w-full relative flex justify-center">
-                    <img src="{{ asset('images/hero.png') }}" alt="Hero Image"
-                        class="w-full h-auto sm:h-[90vh] lg:h-[80vh] object-contain shadow-lg">
-
-                    <div
-                        class="absolute inset-0 flex flex-col justify-center text-center p-6 bg-gradient-to-r from-black/70 via-gray-900/70 to-black/70 lg:hidden">
-                        <h1 class="text-4xl font-bold">Track Your Favorite <span class="text-blue-500">Movies, Series
-                                &
-                                Anime</span></h1>
-                        <p class="text-lg mt-4 opacity-80">Manage your watched content, discover new shows, and add to
-                            your collection seamlessly.</p>
-                        <div class="mt-6 flex gap-4 justify-center">
-                            <a href="#"
-                                class="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">Start
-                                Watching</a>
-                            <a href="#"
-                                class="border border-blue-600 text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">Explore
-                                Now</a>
-                        </div>
+            </div>
+    
+            <!-- Bagian Kanan (Gambar) - Muncul dulu di Mobile -->
+            <div class="w-full relative flex justify-center">
+                <!-- Gambar memenuhi layar -->
+                <img src="{{ asset('images/hero.png') }}" alt="Hero Image"
+                        class="w-full h-auto sm:h-[90vh] lg:h-[80vh] object-contain ">
+    
+                <!-- Overlay yang menutupi seluruh layar -->
+                <div
+                    class="absolute inset-0 w-full h-full flex flex-col justify-center text-center p-6 bg-gradient-to-r from-black/70 via-gray-900/70 to-black/70 lg:hidden">
+                    <h1 class="text-4xl font-bold">
+                        Track Your Favorite
+                        <span class="text-blue-500" id="typing-text-mobile"></span>
+                    </h1>
+                    <p class="text-lg mt-4 opacity-80">
+                        Manage your watched content, discover new shows, and add to your collection seamlessly.
+                    </p>
+                    <div class="mt-6 flex gap-4 justify-center">
+                        <a href="#"
+                            class="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">
+                            Start Watching
+                        </a>
+                        <a href="#"
+                            class="border border-blue-600 text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">
+                            Explore Now
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+    
+    <!-- Inisialisasi Typed.js -->
+    <script>
+        var options = {
+            strings: ["Movies", "Series", "Anime"],
+            typeSpeed: 100, // Kecepatan mengetik
+            backSpeed: 50, // Kecepatan menghapus
+            backDelay: 1500, // Waktu jeda sebelum menghapus
+            loop: true, // Agar animasi terus berulang
+            showCursor: true, // Menampilkan kursor
+            cursorChar: "|", // Simbol kursor
+        };
+
+        new Typed("#typing-text", options);
+        new Typed("#typing-text-mobile", options);
+    </script>
+
+
+
     {{-- Trending Section --}}
     <section class="container mx-auto px-6 py-1 text-white">
         <h2 class="text-2xl lg:text-3xl font-bold mb-6">Trending</h2>
@@ -72,9 +104,6 @@
             </div>
         </div>
     </section>
-
-
-
 
     {{-- Latest Trailers Section --}}
     <section

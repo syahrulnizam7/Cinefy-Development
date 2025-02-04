@@ -3,7 +3,7 @@
 class="fixed z-20 top-0 left-0 w-full py-6 px-6 bg-gradient-to-r from-gray-900 to-black text-white transition-all duration-300"
 x-data="{ navOpen: true }">
 <div class="container mx-auto flex justify-between items-center">
-    <a href="/"><img src="{{ asset('images/logo_fordarktheme.png') }}" alt="My Image" class="h-16 order-1 sm:order-2"></a>
+    <a href="/"><img src="{{ asset('images/logomwl.png') }}" alt="My Image" class="h-16 order-1 sm:order-2"></a>
     <button @click ="navOpen =! navOpen" id="hamburger" name="hamburger" type="button"
         class="hover:bg-blue-700 transition bg-blue-600 rounded-md w-12 h-12 flex flex-col items-center justify-center gap-1.5 order-2 sm:order-1 lg:hidden">
         <span class="w-6 h-[2px] bg-white"></span>

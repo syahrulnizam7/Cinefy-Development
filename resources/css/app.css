@@ -21,4 +21,10 @@ body {
     display: none;  /* Untuk Chrome, Safari, dan Edge */
 }
 
+#typing-text, #typing-text-mobile {
+    display: inline-block;
+    min-width: 11px; /* Sesuaikan dengan kata terpanjang */
+    text-align: left;
+    white-space: nowrap;
+}
 
