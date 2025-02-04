@@ -49,6 +49,40 @@ Route::get('login/google/callback', function () {
 
 Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
 
+Route::get('/api/search', function () {
+    $query = request('q');
+    if (!$query) return response()->json(['results' => []]);
+
+    $apiKey = config('services.tmdb.api_key');
+
+    $response = Http::get(config('services.tmdb.base_url') . 'search/multi', [
+        'api_key' => $apiKey,
+        'language' => 'id-ID',
+        'query' => $query,
+    ]);
+
+    $results = collect($response->json()['results'] ?? [])
+        ->filter(fn($item) => isset($item['title']) || isset($item['name']))
+        ->map(fn($item) => [
+            'id' => $item['id'],
+            'title' => $item['title'] ?? $item['name'],
+            'release_date' => $item['release_date'] ?? $item['first_air_date'] ?? '',
+            'type' => $item['media_type'],
+            // Pastikan gambar hanya ditambahkan satu kali
+            'poster_path' => isset($item['poster_path']) && !empty($item['poster_path'])
+                ? 'https://image.tmdb.org/t/p/w92' . $item['poster_path']
+                : asset('images/noimg.png'),
+            'average_rating' => $item['vote_average'] ?? 'N/A',
+        ])
+        ->values();
+
+    return response()->json(['results' => $results]);
+});
+
+
+
+
+
 Route::get('/', function () {
     $apiKey = config('services.tmdb.api_key');
 
@@ -57,33 +91,88 @@ Route::get('/', function () {
         'api_key' => $apiKey,
         'language' => 'id-ID',
     ]);
-    
+
     $trending = $trendingResponse->json()['results'] ?? [];
-    
+
     // Ambil daftar film terbaru (now playing)
     $latestTrailersResponse = Http::get(config('services.tmdb.base_url') . "movie/now_playing", [
         'api_key' => $apiKey,
         'language' => 'id-ID',
         'page' => 1
     ]);
-    
+
     $latestTrailers = $latestTrailersResponse->json()['results'] ?? [];
-    
+
     // Ambil video trailer untuk setiap film terbaru
     foreach ($latestTrailers as &$movie) {
         $videosResponse = Http::get(config('services.tmdb.base_url') . "movie/{$movie['id']}/videos", [
             'api_key' => $apiKey,
         ]);
-        
+
         $videos = $videosResponse->json()['results'] ?? [];
         $trailer = collect($videos)->firstWhere('type', 'Trailer');
         $movie['trailer_key'] = $trailer ? $trailer['key'] : null;
     }
-    
+
     return view('index', compact('trending', 'latestTrailers'));
 });
 
-// Route::get('/movie/{id}', [MovieController::class, 'show'])->name('movie.show');
 
 
-// Route::get('/movie/{id}', [MovieController::class, 'show'])->name('movie.show');
+Route::get('/detail/{type}/{id}', function ($type, $id) {
+    $apiKey = config('services.tmdb.api_key');
+
+    if (!in_array($type, ['movie', 'tv'])) {
+        abort(404);
+    }
+
+    // Ambil detail utama
+    $detailResponse = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}", [
+        'api_key' => $apiKey,
+        'language' => 'id-ID',
+    ]);
+    $detail = $detailResponse->json();
+
+    // Jika tagline atau overview kosong, coba ambil dari bahasa Inggris
+    if (empty($detail['tagline']) || empty($detail['overview'])) {
+        $detailResponseEn = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}", [
+            'api_key' => $apiKey,
+            'language' => 'en-US',
+        ]);
+        $detailEn = $detailResponseEn->json();
+
+        $detail['tagline'] = $detail['tagline'] ?: $detailEn['tagline'];
+        $detail['overview'] = $detail['overview'] ?: $detailEn['overview'];
+    }
+
+    // Ambil informasi pemeran utama dan kru
+    $creditsResponse = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}/credits", [
+        'api_key' => $apiKey,
+    ]);
+    $credits = $creditsResponse->json();
+
+    // Ambil hanya 10 pemeran utama
+    $cast = array_slice($credits['cast'], 0, 10);
+
+    // Ambil sutradara & penulis dari crew
+    $director = collect($credits['crew'])->firstWhere('job', 'Director');
+    $writers = collect($credits['crew'])->whereIn('job', ['Writer', 'Screenplay'])->pluck('name')->toArray();
+
+    // Ambil trailer video
+    $videosResponse = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}/videos", [
+        'api_key' => $apiKey,
+    ]);
+    $videos = $videosResponse->json();
+
+    // Ambil trailer key (jika ada)
+    $trailerKey = null;
+    if (isset($videos['results']) && count($videos['results']) > 0) {
+        $trailer = collect($videos['results'])->firstWhere('type', 'Trailer');
+        if ($trailer) {
+            $trailerKey = $trailer['key'];
+        }
+    }
+
+    return view('detail', compact('detail', 'cast', 'director', 'writers', 'trailerKey'));
+})->name('detail');
+

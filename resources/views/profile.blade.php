@@ -1,33 +1,38 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-4xl mx-auto py-8">
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-6">Profile</h2>
+    <div class="max-w-4xl mx-auto py-8 px-4">
+        <div class="bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-8 text-center">Profile</h2>
 
-            <div class="mb-4">
-                <label class="text-lg font-medium text-gray-600">Name:</label>
-                <p class="text-gray-700">{{ $user->name }}</p>
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Name</label>
+                        <p class="text-lg font-semibold text-gray-800">{{ $user->name }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Email</label>
+                        <p class="text-lg font-semibold text-gray-800">{{ $user->email }}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Joined</label>
+                        <p class="text-lg font-semibold text-gray-800">{{ $user->created_at->format('d M Y') }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Last Updated</label>
+                        <p class="text-lg font-semibold text-gray-800">{{ $user->updated_at->format('d M Y') }}</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <label class="text-lg font-medium text-gray-600">Email:</label>
-                <p class="text-gray-700">{{ $user->email }}</p>
-            </div>
-
-            <div class="mb-4">
-                <label class="text-lg font-medium text-gray-600">Joined:</label>
-                <p class="text-gray-700">{{ $user->created_at->format('d M Y') }}</p>
-            </div>
-
-            <div class="mb-4">
-                <label class="text-lg font-medium text-gray-600">Last Updated:</label>
-                <p class="text-gray-700">{{ $user->updated_at->format('d M Y') }}</p>
-            </div>
-
-            <!-- Tambahkan data lainnya sesuai kebutuhan -->
-            <div class="mt-6">
-                <a href="" class="text-blue-500 hover:underline">Edit Profile</a>
+            <div class="mt-8 text-center">
+                <a href="" class="text-blue-500 hover:underline text-lg">Edit Profile</a>
             </div>
         </div>
     </div>

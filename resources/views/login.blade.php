@@ -28,25 +28,30 @@
     </style>
 </head>
 
-<body class="flex items-center justify-center min-h-screen bg-gradient-to-r from-black via-gray-900 to-black text-white">
+<body
+    class="flex items-center justify-center min-h-screen bg-gradient-to-r from-black via-gray-900 to-black text-white relative overflow-hidden">
+
+    <!-- Lingkaran Blur dengan Glow -->
+    <!-- Lingkaran Blur dengan Glow -->
+    <div class="circle green"></div>
+    <div class="circle pink"></div>
 
     <!-- Background Animation -->
     <div class="background-animation" id="background-animation"></div>
 
     <!-- Login Container -->
-    <div id="login-container" class="w-3/4 max-w-4xl bg-gray-800 rounded-2xl shadow-lg overflow-hidden flex relative">
+    <div id="login-container"
+        class="w-3/4 max-w-4xl bg-gray-800 rounded-2xl shadow-lg overflow-hidden flex relative z-10">
 
-        <!-- Left Section -->
-        <div class="w-1/2 p-10 flex flex-col justify-center">
-            <h2 class="text-3xl font-bold">WELCOME TO MyWatchLog</h2>
-            <p class="mt-4 text-sm text-gray-300">
-                Keep track of your favorite movies, series, and anime in one place. Discover new shows and build your
-                personal watchlist effortlessly.
-            </p>
+        <!-- Left Section (hidden on mobile) -->
+        <div class="hidden w-1/2 p-10  justify-center items-center md:block md:items-start">
+            <img src="{{ asset('images/logomwl.png') }}" alt="MyWatchLog Logo" class="w-auto h-20 md:h-24">
+            <!-- Ganti dengan path ke logo kamu -->
         </div>
 
-        <!-- Right Section -->
-        <div class="w-1/2 p-10 bg-gray-900 rounded-r-2xl">
+
+        <!-- Right Section (responsive for mobile) -->
+        <div class="w-full md:w-1/2 p-10 bg-gray-900 rounded-2xl">
             <h2 class="text-2xl font-bold text-center text-blue-400">Sign in</h2>
             <form class="mt-6">
                 <div>
@@ -84,7 +89,6 @@
                 <ion-icon name="logo-google" class="text-xl"></ion-icon>
                 Login with Google
             </a>
-
         </div>
     </div>
 

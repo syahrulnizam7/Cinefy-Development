@@ -1,16 +1,23 @@
 @extends('layouts.app')
 
+<!-- Lingkaran Blur dengan Glow -->
+<div
+    class="absolute top-40 -left-52 md:top-52 lg:top-80 lg:-left-40 w-[400px] h-[400px] bg-green-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-green-500/50 z-10">
+</div>
+<div
+    class="absolute -top-44 -right-56 lg:-top-64 lg:-right-52 w-[420px] h-[420px] bg-pink-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-pink-500/50 z-10">
+</div>
 @section('content')
 
     <!-- Tambahkan Typed.js di Head atau sebelum penutup </body> -->
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 
     <!-- Hero Section -->
-    <section class="relative text-white mt-28 lg:mt-24 lg:-mb-12 sm:mt-32">
+    <section class="relative  text-white  lg:mt-24 lg:-mb-12 ">
         <div class="relative flex flex-col lg:grid lg:grid-cols-2 gap-12 items-center w-full">
-            
+
             <!-- Bagian Kiri (Text) - Muncul hanya di Desktop -->
-            <div class="hidden lg:block px-6 lg:px-15">
+            <div class="hidden lg:block px-6 lg:px-15  z-20">
                 <h1 class="text-4xl md:text-6xl font-bold leading-tight">
                     Track Your Favorite
                     <span class="text-blue-500" id="typing-text"></span>
@@ -29,38 +36,40 @@
                     </a>
                 </div>
             </div>
-    
+
             <!-- Bagian Kanan (Gambar) - Muncul dulu di Mobile -->
-            <div class="w-full relative flex justify-center">
-                <!-- Gambar memenuhi layar -->
+            <div class="w-full h-full  relative flex justify-center">
+
                 <img src="{{ asset('images/hero.png') }}" alt="Hero Image"
-                        class="w-full h-auto sm:h-[90vh] lg:h-[80vh] object-contain ">
-    
+                    class="w-full h-auto sm:h-[90vh] lg:h-[80vh] object-contain opacity-70 z-0 ">
+
                 <!-- Overlay yang menutupi seluruh layar -->
                 <div
-                    class="absolute inset-0 w-full h-full flex flex-col justify-center text-center p-6 bg-gradient-to-r from-black/70 via-gray-900/70 to-black/70 lg:hidden">
-                    <h1 class="text-4xl font-bold">
+                    class="absolute inset-0 w-full h-full flex flex-col justify-center text-center p-6 
+           bg-[linear-gradient(to_bottom,rgba(0,0,0,0.8)_0%,rgba(0,0,0,0.7)_70%,rgba(0,0,0,0.4)_85%,rgba(0,0,0,0)_95%)] lg:hidden">
+                    <h1 class="text-3xl font-bold mt-28 z-20">
                         Track Your Favorite
                         <span class="text-blue-500" id="typing-text-mobile"></span>
                     </h1>
-                    <p class="text-lg mt-4 opacity-80">
+                    <p class="text-base mt-4 opacity-80 z-20">
                         Manage your watched content, discover new shows, and add to your collection seamlessly.
                     </p>
-                    <div class="mt-6 flex gap-4 justify-center">
+                    <div class="mt-6 flex gap-4 justify-center z-20">
                         <a href="#"
                             class="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">
                             Start Watching
                         </a>
                         <a href="#"
-                            class="border border-blue-600 text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">
+                            class="z-20 border border-blue-600 text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">
                             Explore Now
                         </a>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
-    
+
     <!-- Inisialisasi Typed.js -->
     <script>
         var options = {
@@ -80,12 +89,12 @@
 
 
     {{-- Trending Section --}}
-    <section class="container mx-auto px-6 py-1 text-white">
-        <h2 class="text-2xl lg:text-3xl font-bold mb-6">Trending</h2>
+    <section class="container mx-auto px-6 py-1 text-white relative z-20">
+        <h2 class="text-2xl lg:text-3xl font-bold mb-6 ">Trending</h2>
         <div class="overflow-x-auto scrollbar-hidden pt-4 pb-4 h-[335px]">
             <div class="flex space-x-4 h-auto">
                 @foreach ($trending as $item)
-                    <a href=""
+                    <a href="{{ route('detail', ['type' => $item['media_type'], 'id' => $item['id']]) }}"
                         class="bg-gray-800 rounded-lg shadow-lg w-40 flex-shrink-0 transform transition-all duration-300 hover:cursor-pointer hover:scale-105 hover:shadow-2xl hover:bg-gray-700 hover:overflow-visible">
                         <img src="https://image.tmdb.org/t/p/w500{{ $item['poster_path'] }}"
                             alt="{{ $item['title'] ?? $item['name'] }}"
@@ -101,6 +110,7 @@
                         </div>
                     </a>
                 @endforeach
+
             </div>
         </div>
     </section>
