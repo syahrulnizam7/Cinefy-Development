@@ -1,15 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Models\Watched; // Tambahkan import model Watched
 
 class ProfileController extends Controller
 {
-    //
     public function showProfile()
     {
         $user = Auth::user(); // Mengambil data pengguna yang sedang login
-        return view('profile', compact('user'));
+        $watched = Watched::where('user_id', $user->id)->get(); // Ambil data watched berdasarkan user_id
+
+        return view('profile', compact('user', 'watched'));
     }
 }

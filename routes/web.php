@@ -12,6 +12,15 @@ use Illuminate\Support\Str;
 Route::get('login/google', [App\Http\Controllers\Auth\LoginController::class, 'redirectToGoogle']);
 Route::get('login/google/callback', [App\Http\Controllers\Auth\LoginController::class, 'handleGoogleCallback']);
 
+use App\Http\Controllers\WatchedController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/watched', [WatchedController::class, 'store'])->name('watched.store');
+    Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile'); // PAKAI INI
+});
+
+
+
 Route::post('/logout', function () {
     Auth::logout();
     Session::invalidate(); // Bersihkan sesi
@@ -47,7 +56,6 @@ Route::get('login/google/callback', function () {
     return redirect()->route('profile');
 })->name('google.callback');
 
-Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
 
 Route::get('/api/search', function () {
     $query = request('q');
@@ -131,7 +139,15 @@ Route::get('/detail/{type}/{id}', function ($type, $id) {
         'api_key' => $apiKey,
         'language' => 'id-ID',
     ]);
+
+    if ($detailResponse->failed()) {
+        // Menangani jika ada kesalahan API
+        abort(500, 'Terjadi kesalahan dalam mengambil data detail.');
+    }
+
     $detail = $detailResponse->json();
+
+
 
     // Jika tagline atau overview kosong, coba ambil dari bahasa Inggris
     if (empty($detail['tagline']) || empty($detail['overview'])) {
@@ -173,6 +189,5 @@ Route::get('/detail/{type}/{id}', function ($type, $id) {
         }
     }
 
-    return view('detail', compact('detail', 'cast', 'director', 'writers', 'trailerKey'));
+    return view('detail', compact('detail', 'cast', 'director', 'writers', 'trailerKey', 'type'));
 })->name('detail');
-
