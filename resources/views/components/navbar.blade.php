@@ -87,51 +87,55 @@
     </div>
 
     <!-- Search Modal -->
-    <div x-show="searchOpen"
-        class="fixed inset-0 bg-gradient-to-b from-gray-900/80 to-black/80 backdrop-blur-lg z-30 flex items-center justify-center"
-        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+<div x-show="searchOpen"
+class="fixed inset-0 bg-gradient-to-b from-gray-900/80 to-black/80 backdrop-blur-md z-30 flex items-center justify-center"
+x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-        <!-- Modal Content -->
-        <div @click.away="searchOpen = false" class="bg-gray-800 p-6 rounded-2xl w-full max-w-2xl shadow-lg"
-            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90"
-            x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90">
-            <!-- Input Box -->
-            <input type="text" id="searchInput" placeholder="Search movies, series, and more..." x-model="query"
-                @input.debounce.300ms="performSearch"
-                class="w-full px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-lg">
+<!-- Modal Content -->
+<div @click.away="searchOpen = false" 
+    class="bg-gray-800 p-6 rounded-2xl w-full max-w-md shadow-lg transform transition-all duration-300"
+    x-transition:enter="transition transform ease-out duration-300" x-transition:enter-start="opacity-0 scale-90"
+    x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition transform ease-in duration-200"
+    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90">
+    
+    <!-- Input Box -->
+    <input type="text" id="searchInput" placeholder="Search movies, series, and more..." x-model="query"
+        @input.debounce.300ms="performSearch"
+        class="w-full px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-lg">
 
-            <!-- Results Container -->
-            <div x-show="results.length > 0"
-                class="mt-4 bg-gray-900 text-white shadow-inner max-h-60 overflow-auto rounded-lg">
-                <template x-for="result in results" :key="result.id">
-                    <a :href="'/detail/' + result.type + '/' + result.id"
-                        class="flex items-center p-4 hover:bg-gray-700 transition duration-200 rounded-md">
-                        <img :src="result.poster_path ? `https://image.tmdb.org/t/p/w92${result.poster_path}` : '/images/noimg.png'"
-                            alt="Poster" class="w-16 h-24 object-cover mr-4 rounded-md">
+    <!-- Results Container -->
+    <div x-show="results.length > 0"
+        x-transition:enter="transition ease-out duration-300 transform"
+        x-transition:enter-start="opacity-0 translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200 transform"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 translate-y-2"
+        class="mt-4 bg-gray-900 text-white shadow-inner max-h-60 overflow-auto scrollbar-hidden rounded-lg">
 
+        <template x-for="result in results" :key="result.id">
+            <a :href="'/detail/' + result.type + '/' + result.id"
+                class="flex items-center p-4 hover:bg-gray-700 transition duration-200 rounded-md">
+                <img :src="result.poster_path ? `https://image.tmdb.org/t/p/w92${result.poster_path}` : '/images/noimg.png'"
+                    alt="Poster" class="w-16 h-24 object-cover mr-4 rounded-md">
 
-                        <div>
-                            <p class="font-bold text-lg" x-text="result.title"></p>
-                            <p class="text-sm text-gray-400" x-text="result.release_date"></p>
-                            <p class="text-sm text-yellow-400 font-semibold">
-                                <span x-text="'Rating: ' + result.average_rating"></span>
-                            </p>
-
-                        </div>
-                    </a>
-                </template>
-            </div>
-        </div>
+                <div>
+                    <p class="font-bold text-lg" x-text="result.title"></p>
+                    <p class="text-sm text-gray-400" x-text="result.release_date"></p>
+                    <p class="text-sm text-yellow-400 font-semibold">
+                        <span x-text="'Rating: ' + result.average_rating"></span>
+                    </p>
+                </div>
+            </a>
+        </template>
     </div>
-
-
-
+</div>
+</div>
 
     <div x-show="navOpen"
-        class="fixed scale-75 rounded-full z-20 bottom-1 right-1 left-1 p-4 lg:hidden bg-blue-600 hover:opacity-80 opacity-70"
+        class="fixed scale-75 rounded-full z-20 bottom-1 right-1 left-1 p-4 lg:hidden bg-blue-600 "
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-10"
         x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-300"
         x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-10">
@@ -143,13 +147,14 @@
                 </a>
             </li>
             <li class="group">
-                <a href="" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
+                <button @click="searchOpen = true" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
                     <ion-icon name="search"
                         class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
                     <span
                         class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">Search</span>
-                </a>
+                </button>
             </li>
+
             <li class="group">
                 <a href="" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
                     <ion-icon name="add-circle"

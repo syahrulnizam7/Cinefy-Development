@@ -19,6 +19,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile'); // PAKAI INI
 });
 
+Route::delete('/watched', [WatchedController::class, 'destroy'])->name('watched.destroy');
 
 
 Route::post('/logout', function () {
@@ -125,6 +126,8 @@ Route::get('/', function () {
     return view('index', compact('trending', 'latestTrailers'));
 });
 
+
+Route::get('/watched/check', [WatchedController::class, 'check'])->name('watched.index');
 
 
 Route::get('/detail/{type}/{id}', function ($type, $id) {

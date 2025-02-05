@@ -65,14 +65,78 @@
                 <p class="mt-4 text-gray-300">{{ Str::limit($detail['overview'], 200, '...') }}</p>
 
                 <div class="mt-6 flex space-x-4">
-                    <button @click="addToWatched" class="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600">
-                        Watched
+                    <button @click="addToWatched" :class="watched ? 'bg-green-600' : 'bg-blue-600'"
+                        class="text-center flex items-center  text-white px-4 py-2 rounded-full transition-all duration-300">
+                        <template x-if="watched">
+                            <span class="flex items-center">
+                                <ion-icon name="checkmark-circle" class="text-white text-lg"></ion-icon>
+                                <span class="ml-2">Watched</span>
+                            </span>
+                        </template>
+                        <template x-if="!watched">
+                            <span class="flex items-center justify-center">Watched</span>
+                        </template>
                     </button>
+
+                    <button
+                        class="border border-gray-300 px-6 py-3 rounded-full transition-colors duration-300 hover:bg-gray-800">+
+                        Save for Later</button>
                 </div>
 
-                <button
-                    class="border border-gray-300 px-6 py-3 rounded-full transition-colors duration-300 hover:bg-gray-800">+
-                    Save for Later</button>
+                <!-- Modal Konfirmasi Hapus -->
+                <div x-show="showDeleteModal" x-transition
+                    class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60 backdrop-blur">
+                    <div
+                        class="relative bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-lg shadow-lg w-full max-w-md p-6">
+                        <!-- Tombol Tutup -->
+                        <button @click="showDeleteModal = false"
+                            class="absolute top-3 right-3 text-gray-300 hover:text-white">
+                            <ion-icon name="close" class="text-2xl"></ion-icon>
+                        </button>
+
+                        <!-- Konten Modal -->
+                        <div class="text-center">
+                            <h2 class="text-xl font-semibold text-white">Konfirmasi Hapus</h2>
+                            <p class="mt-4 text-gray-300">Apakah Anda yakin ingin menghapus item ini dari daftar watched?
+                            </p>
+
+                            <!-- Tombol Aksi -->
+                            <div class="mt-6 flex justify-center space-x-4">
+                                <button @click="deleteFromWatched"
+                                    class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
+                                    Yes
+                                </button>
+                                <button @click="showDeleteModal = false"
+                                    class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
+                                    No
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Notifikasi -->
+                <div x-show="showNotification"
+                    x-transition:enter="transition ease-out duration-300 transform opacity-0 scale-90"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-300 transform opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-90"
+                    class="fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50" x-cloak>
+                    <span>🎉 Successfully added to the Watched list!</span>
+                </div>
+
+                <!-- Notifikasi -->
+                <div x-show="showNotification2"
+                    x-transition:enter="transition ease-out duration-300 transform opacity-0 scale-90"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-300 transform opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-90"
+                    class="fixed top-5 right-5 bg-pink-600 text-white px-6 py-3 rounded-lg shadow-lg z-50" x-cloak>
+                    <span>🎉 Successfully delete item from Watched list!</span>
+                </div>
+
+
 
                 <div class="mt-6 grid grid-cols-2 md:grid-cols-2 gap-6">
                     <div>
@@ -108,27 +172,108 @@
     <script>
         document.addEventListener("alpine:init", () => {
             Alpine.data("detail", () => ({
+                watched: false,
+                showNotification: false,
+                showNotification2: false,
+                showDeleteModal: false,
+
+                init() {
+                    this.checkIfWatched();
+                },
+
+                checkIfWatched() {
+                    let tmdb_id = "{{ $detail['id'] }}";
+
+                    fetch("{{ route('watched.index') }}?tmdb_id=" + tmdb_id, {
+                            method: "GET",
+                            headers: {
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.watched) {
+                                this.watched = true;
+                            }
+                        })
+                        .catch(error => console.error("Error checking watched status:", error));
+                },
+
                 addToWatched() {
-                    fetch("{{ route('watched.store') }}", {
-                            method: "POST",
+                    let tmdb_id = "{{ $detail['id'] }}";
+                    let title = "{{ $detail['title'] ?? $detail['name'] }}";
+                    let poster_path = "{{ $detail['poster_path'] }}";
+                    let type = "{{ $type }}";
+                    let vote_average = "{{ $detail['vote_average'] ?? 0 }}";
+                    let release_date =
+                        "{{ $detail['release_date'] ?? ($detail['first_air_date'] ?? '') }}";
+
+                    if (!tmdb_id) {
+                        alert("Data tidak lengkap, tidak bisa menyimpan.");
+                        return;
+                    }
+
+                    if (this.watched) {
+                        this.showDeleteModal = true; // Tampilkan modal konfirmasi
+                    } else {
+                        fetch("{{ route('watched.store') }}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                },
+                                body: JSON.stringify({
+                                    tmdb_id,
+                                    title,
+                                    poster_path,
+                                    type,
+                                    vote_average,
+                                    release_date,
+                                }),
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.message) {
+                                    this.watched = true;
+                                    this.showNotification = true;
+
+                                    // Sembunyikan notifikasi setelah 3 detik
+                                    setTimeout(() => {
+                                        this.showNotification = false;
+                                    }, 3000);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                alert("Terjadi kesalahan, coba lagi.");
+                            });
+                    }
+                },
+
+                deleteFromWatched() {
+                    let tmdb_id = "{{ $detail['id'] }}";
+
+                    fetch("{{ route('watched.destroy') }}", {
+                            method: "DELETE",
                             headers: {
                                 "Content-Type": "application/json",
                                 "X-CSRF-TOKEN": "{{ csrf_token() }}",
                             },
                             body: JSON.stringify({
-                                tmdb_id: "{{ $detail['id'] }}",
-                                title: "{{ $detail['title'] ?? $detail['name'] }}",
-                                poster_path: "{{ $detail['poster_path'] }}",
-                                type: "{{ $type }}",
-                                vote_average: "{{ $detail['vote_average'] }}", // Pastikan nilai vote_average ada
-                                release_date: "{{ $detail['release_date'] ?? $detail['first_air_date'] }}", // Pastikan release_date ada
+                                tmdb_id
                             }),
-
                         })
                         .then(response => response.json())
                         .then(data => {
-                            if (data && data.message) {
-                                alert(data.message);
+                            if (data.success) {
+                                this.watched = false;
+                                this.showDeleteModal = false; // Tutup modal
+                                this.showNotification2 = true;
+
+                                // Sembunyikan notifikasi setelah 3 detik
+                                setTimeout(() => {
+                                    this.showNotification2 = false;
+                                }, 3000);
                             }
                         })
                         .catch(error => {
@@ -136,8 +281,6 @@
                             alert("Terjadi kesalahan, coba lagi.");
                         });
                 }
-
-
             }));
         });
     </script>

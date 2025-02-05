@@ -1,12 +1,20 @@
 @extends('layouts.app')
 
-<!-- Lingkaran Blur dengan Glow -->
-<div
+<!-- Lingkaran Blur dengan Glow  gak gerak-->
+{{-- <div
     class="absolute top-40 -left-52 md:top-52 lg:top-80 lg:-left-40 w-[400px] h-[400px] bg-green-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-green-500/50 z-10">
 </div>
 <div
     class="absolute -top-44 -right-56 lg:-top-64 lg:-right-52 w-[420px] h-[420px] bg-pink-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-pink-500/50 z-10">
+</div> --}}
+<!-- Lingkaran Blur dengan Glow gerak -->
+<div
+    class="absolute top-40 -left-52 md:top-52 lg:top-80 lg:-left-40 w-[400px] h-[400px] bg-green-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-green-500/50 -z-10 animate-moveCircle1">
 </div>
+<div
+    class="absolute -top-44 -right-56 lg:-top-64 lg:-right-52 w-[420px] h-[420px] bg-pink-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-pink-500/50 -z-10 animate-moveCircle2">
+</div>
+
 @section('content')
 
     <!-- Tambahkan Typed.js di Head atau sebelum penutup </body> -->
@@ -192,3 +200,64 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
 
 
     </section>
+    <style>
+        /* Animasi lingkaran pertama */
+        @keyframes moveCircle1 {
+            0% {
+                transform: translate(0, 0);
+            }
+    
+            25% {
+                transform: translate(250px, -200px);
+            }
+    
+            /* Adjusted to move closer to center */
+            50% {
+                transform: translate(-150px, 100px);
+            }
+    
+            /* Adjusted */
+            75% {
+                transform: translate(200px, 50px);
+            }
+    
+            /* Adjusted */
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+    
+        /* Animasi lingkaran kedua */
+        @keyframes moveCircle2 {
+            0% {
+                transform: translate(0, 0);
+            }
+    
+            25% {
+                transform: translate(-250px, 150px);
+            }
+    
+            /* Adjusted to move closer to center */
+            50% {
+                transform: translate(300px, -180px);
+            }
+    
+            /* Adjusted */
+            75% {
+                transform: translate(-200px, -50px);
+            }
+    
+            /* Adjusted */
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+    
+        .animate-moveCircle1 {
+            animation: moveCircle1 8s ease-in-out infinite;
+        }
+    
+        .animate-moveCircle2 {
+            animation: moveCircle2 8s ease-in-out infinite;
+        }
+    </style>
