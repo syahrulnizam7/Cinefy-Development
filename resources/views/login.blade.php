@@ -32,7 +32,6 @@
     class="flex items-center justify-center min-h-screen bg-gradient-to-r from-black via-gray-900 to-black text-white relative overflow-hidden">
 
     <!-- Lingkaran Blur dengan Glow -->
-    <!-- Lingkaran Blur dengan Glow -->
     <div class="circle green"></div>
     <div class="circle pink"></div>
 

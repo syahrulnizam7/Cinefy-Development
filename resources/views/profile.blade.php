@@ -1,12 +1,11 @@
 @extends('layouts.app')
 <!-- Lingkaran Blur dengan Glow -->
-<!-- Lingkaran Blur dengan Glow -->
 
 <div
-    class="absolute top-40 -left-52 md:top-52 lg:top-80 lg:-left-40 w-[400px] h-[400px] bg-green-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-green-500/50 -z-10 animate-moveCircle1">
+    class="fixed top-40 -left-52 md:top-52 lg:top-80 lg:-left-40 w-[400px] h-[400px] bg-green-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-green-500/50 -z-10 animate-moveCircle1">
 </div>
 <div
-    class="absolute -top-44 -right-56 lg:-top-64 lg:-right-52 w-[420px] h-[420px] bg-pink-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-pink-500/50 -z-10 animate-moveCircle2">
+    class="fixed -top-44 -right-56 lg:-top-64 lg:-right-52 w-[420px] h-[420px] bg-pink-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-pink-500/50 -z-10 animate-moveCircle2">
 </div>
 
 @section('content')
@@ -16,14 +15,15 @@
             <!-- Profile Section (Left) -->
             <div class="w-1/3 flex flex-col items-center">
                 <div class="w-48 h-48 rounded-full overflow-hidden border-4 border-white">
-                    <img src="{{ $user->profile_picture ?? 'default-avatar.png' }}" alt="{{ $user->name }}"
+                    <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}"
                         class="object-cover w-full h-full">
+
                 </div>
 
             </div>
             <div class="flex flex-col">
                 <h2 class="text-2xl font-bold text-white mt-4">{{ $user->name }}</h2>
-                <p class="text-sm text-gray-400">{{ $user->email }}</p>
+                <p class="text-sm text-gray-400"><span>@</span>{{ $user->username }}</p>
 
                 <div class=" flex flex-col items-center text-white mt-11">
                     <div class="flex gap-5 justify-between w-full text-center mt-11">
@@ -97,11 +97,11 @@
         <div class="md:hidden ">
             <div class="text-center bg-gradient-to-b from-cyan-600 to-teal-700 p-8 rounded-3xl shadow-lg">
                 <div class="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-white">
-                    <img src="{{ $user->profile_picture ?? 'default-avatar.png' }}" alt="{{ $user->name }}"
+                    <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}"
                         class="object-cover w-full h-full">
                 </div>
                 <h2 class="text-2xl font-bold text-white mt-4">{{ $user->name }}</h2>
-                <p class="text-sm text-gray-200">{{ $user->email }}</p>
+                <p class="text-sm text-gray-200"><span>@</span>{{ $user->username }}</p>
             </div>
 
             <!-- Stats Section -->

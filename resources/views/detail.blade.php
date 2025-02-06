@@ -92,7 +92,9 @@
                         </template>
                     </button>
 
+
                 </div>
+
 
                 <!-- Modal Konfirmasi Hapus -->
                 <div x-show="showDeleteModal" x-transition
@@ -126,6 +128,36 @@
                     </div>
                 </div>
 
+
+                <!-- Modal Notifikasi Silakan Login -->
+                <div x-show="showLoginModal" x-transition
+                    class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60 backdrop-blur">
+                    <div class="relative bg-gray-900 rounded-lg shadow-lg w-full max-w-md p-6">
+                        <!-- Tombol Tutup -->
+                        <button @click="showLoginModal = false"
+                            class="absolute top-3 right-3 text-gray-300 hover:text-white">
+                            <ion-icon name="close" class="text-2xl"></ion-icon>
+                        </button>
+
+                        <!-- Konten Modal -->
+                        <div class="text-center">
+                            <h2 class="text-xl font-semibold text-white">Please Login</h2>
+                            <p class="mt-4 text-gray-300">You must log in first to use this feature.</p>
+
+                            <!-- Tombol Aksi -->
+                            <div class="mt-6 flex justify-center space-x-4">
+                                <a href="{{ route('login') }}"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
+                                    Login
+                                </a>
+                                <button @click="showLoginModal = false"
+                                    class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
+                                    Nanti Saja
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Notifikasi -->
                 <div x-show="showNotification"
@@ -246,53 +278,8 @@
                         alert("Data tidak lengkap, tidak bisa menyimpan.");
                         return;
                     }
-
-                    if (this.watchlist) {
-                        this.removeFromWatchlist();
-                    } else {
-                        fetch("{{ route('watchlist.store') }}", {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                                },
-                                body: JSON.stringify({
-                                    tmdb_id,
-                                    title,
-                                    poster_path,
-                                    type,
-                                    vote_average,
-                                    release_date,
-                                }),
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.message) {
-                                    this.watchlist = true;
-                                    this.showNotificationWatchlist = true;
-
-                                    setTimeout(() => {
-                                        this.showNotificationWatchlist = false;
-                                    }, 3000);
-                                }
-                            })
-                            .catch(error => {
-                                console.error("Error:", error);
-                                alert("Terjadi kesalahan, coba lagi.");
-                            });
-                    }
-                },
-                addToWatchlist() {
-                    let tmdb_id = "{{ $detail['id'] }}";
-                    let title = "{{ $detail['title'] ?? $detail['name'] }}";
-                    let poster_path = "{{ $detail['poster_path'] }}";
-                    let type = "{{ $type }}";
-                    let vote_average = "{{ $detail['vote_average'] ?? 0 }}";
-                    let release_date =
-                        "{{ $detail['release_date'] ?? ($detail['first_air_date'] ?? '') }}";
-
-                    if (!tmdb_id) {
-                        alert("Data tidak lengkap, tidak bisa menyimpan.");
+                    if (!"{{ Auth::check() }}") { // Cek apakah pengguna login
+                        this.showLoginModal = true; // Tampilkan modal login
                         return;
                     }
 
@@ -331,6 +318,7 @@
                             });
                     }
                 },
+
                 removeFromWatchlist() {
                     let tmdb_id = "{{ $detail['id'] }}";
 
@@ -376,6 +364,10 @@
                         return;
                     }
 
+                    if (!"{{ Auth::check() }}") { // Cek apakah pengguna login
+                        this.showLoginModal = true; // Tampilkan modal login
+                        return;
+                    }
                     if (this.watched) {
                         this.showDeleteModal = true; // Tampilkan modal konfirmasi
                     } else {

@@ -14,20 +14,58 @@ use App\Http\Controllers\WatchlistController;
 Route::get('login/google', [App\Http\Controllers\Auth\LoginController::class, 'redirectToGoogle']);
 Route::get('login/google/callback', [App\Http\Controllers\Auth\LoginController::class, 'handleGoogleCallback']);
 
+// // Proses login dengan Google callback
+// Route::get('login/google/callback', function () {
+//     $googleUser = Socialite::driver('google')->user();
+
+//     // Cek apakah pengguna sudah terdaftar berdasarkan email
+//     $existingUser = User::where('email', $googleUser->getEmail())->first();
+
+//     if ($existingUser) {
+//         // Jika pengguna sudah ada tetapi belum memiliki google_id, update
+//         if (!$existingUser->google_id) {
+//             $existingUser->update(['google_id' => $googleUser->getId()]);
+//         }
+//         Auth::login($existingUser);
+//         return redirect()->route('profile'); // Jika sudah ada, langsung ke profile
+//     }
+
+//     // Jika pengguna baru, buat akun dengan google_id
+//     $newUser = User::create([
+//         'name' => $googleUser->getName(),
+//         'email' => $googleUser->getEmail(),
+//         'password' => bcrypt(Str::random(16)), // Password acak
+//         'profile_photo' => null,
+//         'username' => null,
+//         'google_id' => $googleUser->getId(), // Tambahkan google_id
+//     ]);
+    
+//     Auth::login($newUser);
+    
+//     return redirect()->route('welcome'); // Redirect untuk melengkapi profil
+// })->name('google.callback');
+
+Route::get('/welcome', function () {
+    return view('welcome');
+})->name('welcome');
+
+
+
+Route::get('login', function () {
+    return view('login'); // Ganti dengan nama blade login yang sesuai
+})->name('login'); // Memberi nama route 'login'
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/watched', [WatchedController::class, 'store'])->name('watched.store');
-    Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
+    Route::get('/watched/check', [WatchedController::class, 'check'])->name('watched.index');
+    Route::delete('/watched', [WatchedController::class, 'destroy'])->name('watched.destroy');
 
-    // PAKAI INI
     Route::post('/watchlist', [WatchlistController::class, 'store'])->name('watchlist.store');
     Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist.index');
     Route::delete('/watchlist', [WatchlistController::class, 'destroy'])->name('watchlist.destroy');
+
+    Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
 });
-
-Route::delete('/watched', [WatchedController::class, 'destroy'])->name('watched.destroy');
-
-Route::get('/watched/check', [WatchedController::class, 'check'])->name('watched.index');
 
 
 Route::post('/logout', function () {
@@ -37,33 +75,16 @@ Route::post('/logout', function () {
     return redirect('/'); // Arahkan pengguna setelah logout
 })->name('logout');
 
-Route::get('login', function () {
-    return view('login'); // Ganti dengan nama blade login yang sesuai
-})->name('login'); // Memberi nama route 'login'
 
-// Proses login dengan Google callback
-Route::get('login/google/callback', function () {
-    $user = Socialite::driver('google')->user();
 
-    // Cek apakah pengguna sudah terdaftar di database
-    $existingUser = User::where('email', $user->getEmail())->first();
+// Route untuk halaman welcome
+Route::get('/welcome', function () {
+    return view('welcome');
+})->name('welcome')->middleware('auth');
 
-    if ($existingUser) {
-        // Jika sudah ada, login ke sistem
-        Auth::login($existingUser);
-    } else {
-        // Jika tidak ada, buat pengguna baru
-        $newUser = User::create([
-            'name' => $user->getName(),
-            'email' => $user->getEmail(),
-            'password' => bcrypt(Str::random(16)), // Menggunakan Str::random()
-        ]);
-        Auth::login($newUser);
-    }
+// Route untuk menyimpan data profil
+Route::post('/welcome/save', [ProfileController::class, 'saveProfile'])->name('welcome.save')->middleware('auth');
 
-    // Redirect ke halaman setelah login (misalnya profile atau dashboard)
-    return redirect()->route('profile');
-})->name('google.callback');
 
 
 Route::get('/api/search', function () {
@@ -95,9 +116,6 @@ Route::get('/api/search', function () {
 
     return response()->json(['results' => $results]);
 });
-
-
-
 
 
 Route::get('/', function () {

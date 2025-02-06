@@ -19,21 +19,34 @@ class LoginController extends Controller
     {
         $googleUser = Socialite::driver('google')->user();
 
-        // Jika pengguna sudah ada, login
-        $user = User::where('google_id', $googleUser->getId())->first();
+        // Cek apakah pengguna sudah ada berdasarkan email
+        $user = User::where('email', $googleUser->getEmail())->first();
 
         if (!$user) {
             // Jika pengguna baru, buat akun baru
             $user = User::create([
                 'name' => $googleUser->getName(),
                 'email' => $googleUser->getEmail(),
+                'password' => null,
+                'profile_photo' => null,
+                'username' => null,
                 'google_id' => $googleUser->getId(),
-                'password' => bcrypt(Str::random(16)), // password acak
             ]);
+
+            Auth::login($user, true);
+
+            // Jika pengguna baru, arahkan ke halaman welcome
+            return redirect()->route('welcome');
+        } else {
+            // Jika pengguna lama tetapi belum memiliki google_id, update google_id
+            if (!$user->google_id) {
+                $user->update(['google_id' => $googleUser->getId()]);
+            }
+
+            Auth::login($user, true);
+
+            // Jika pengguna sudah ada, arahkan ke halaman utama
+            return redirect('/');
         }
-
-        Auth::login($user, true);
-
-        return redirect()->intended('/');
     }
 }

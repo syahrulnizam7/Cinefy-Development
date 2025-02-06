@@ -44,8 +44,11 @@
         <div class="order-3 hidden sm:block">
             @auth
                 <div x-data="{ open: false }" class="relative">
-                    <button @click="open = !open" class="text-white font-semibold">
-                        {{ Auth::user()->name }}
+                    <button @click="open = !open" class="text-white font-semibold flex items-center gap-2">
+                        <!-- Profile Photo -->
+                        <img src="{{ Auth::user()->profile_photo ? asset('storage/' . Auth::user()->profile_photo) : asset('images/default-avatar.png') }}"
+                            alt="Profile" class="w-10 h-10 rounded-full object-cover border-2 border-white">
+                        <span>{{ Auth::user()->name }}</span>
                     </button>
                     <!-- Dropdown Menu -->
                     <div x-show="open" @click.outside="open = false"
@@ -172,7 +175,7 @@
                 </a>
             </li>
             <li class="group">
-                <a href="" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
+                <a href="{{ route('profile') }}" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
                     <ion-icon name="person"
                         class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
                     <span
