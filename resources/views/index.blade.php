@@ -99,7 +99,7 @@
     {{-- Trending Section --}}
     <section class="container mx-auto px-6 py-1 text-white relative z-20">
         <h2 class="text-2xl lg:text-3xl font-bold mb-6 ">Trending</h2>
-        <div class="overflow-x-auto scrollbar-hidden pt-4 pb-4 h-[335px]">
+        <div class="overflow-x-auto overflow-y-hidden scrollbar-hidden pt-4 pb-4 h-[335px]">
             <div class="flex space-x-4 h-auto">
                 @foreach ($trending as $item)
                     <a href="{{ route('detail', ['type' => $item['media_type'], 'id' => $item['id']]) }}"

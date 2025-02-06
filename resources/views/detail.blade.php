@@ -78,9 +78,20 @@
                         </template>
                     </button>
 
-                    <button
-                        class="border border-gray-300 px-6 py-3 rounded-full transition-colors duration-300 hover:bg-gray-800">+
-                        Save for Later</button>
+                    <button @click="addToWatchlist"
+                        :class="watchlist ? 'bg-yellow-600' : 'border-gray-300 hover:bg-gray-800'"
+                        class="border px-6 py-3 rounded-full transition-colors duration-300">
+                        <template x-if="watchlist">
+                            <span class="flex items-center">
+                                <ion-icon name="bookmark" class="text-white text-lg"></ion-icon>
+                                <span class="ml-2">Saved</span>
+                            </span>
+                        </template>
+                        <template x-if="!watchlist">
+                            <span class="flex items-center justify-center">+ Save for Later</span>
+                        </template>
+                    </button>
+
                 </div>
 
                 <!-- Modal Konfirmasi Hapus -->
@@ -177,8 +188,12 @@
                 showNotification2: false,
                 showDeleteModal: false,
 
+                watchlist: false,
+                showNotificationWatchlist: false,
+                showNotificationRemoveWatchlist: false,
                 init() {
                     this.checkIfWatched();
+                    this.checkIfWatchlist();
                 },
 
                 checkIfWatched() {
@@ -198,6 +213,154 @@
                         })
                         .catch(error => console.error("Error checking watched status:", error));
                 },
+
+                checkIfWatchlist() {
+                    let tmdb_id = "{{ $detail['id'] }}";
+
+                    fetch("{{ route('watchlist.index') }}?tmdb_id=" + tmdb_id, {
+                            method: "GET",
+                            headers: {
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.watchlist) {
+                                this.watchlist = true;
+                            }
+                        })
+                        .catch(error => console.error("Error checking watchlist status:", error));
+                },
+
+
+                addToWatchlist() {
+                    let tmdb_id = "{{ $detail['id'] }}";
+                    let title = "{{ $detail['title'] ?? $detail['name'] }}";
+                    let poster_path = "{{ $detail['poster_path'] }}";
+                    let type = "{{ $type }}";
+                    let vote_average = "{{ $detail['vote_average'] ?? 0 }}";
+                    let release_date =
+                        "{{ $detail['release_date'] ?? ($detail['first_air_date'] ?? '') }}";
+
+                    if (!tmdb_id) {
+                        alert("Data tidak lengkap, tidak bisa menyimpan.");
+                        return;
+                    }
+
+                    if (this.watchlist) {
+                        this.removeFromWatchlist();
+                    } else {
+                        fetch("{{ route('watchlist.store') }}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                },
+                                body: JSON.stringify({
+                                    tmdb_id,
+                                    title,
+                                    poster_path,
+                                    type,
+                                    vote_average,
+                                    release_date,
+                                }),
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.message) {
+                                    this.watchlist = true;
+                                    this.showNotificationWatchlist = true;
+
+                                    setTimeout(() => {
+                                        this.showNotificationWatchlist = false;
+                                    }, 3000);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                alert("Terjadi kesalahan, coba lagi.");
+                            });
+                    }
+                },
+                addToWatchlist() {
+                    let tmdb_id = "{{ $detail['id'] }}";
+                    let title = "{{ $detail['title'] ?? $detail['name'] }}";
+                    let poster_path = "{{ $detail['poster_path'] }}";
+                    let type = "{{ $type }}";
+                    let vote_average = "{{ $detail['vote_average'] ?? 0 }}";
+                    let release_date =
+                        "{{ $detail['release_date'] ?? ($detail['first_air_date'] ?? '') }}";
+
+                    if (!tmdb_id) {
+                        alert("Data tidak lengkap, tidak bisa menyimpan.");
+                        return;
+                    }
+
+                    if (this.watchlist) {
+                        this.removeFromWatchlist();
+                    } else {
+                        fetch("{{ route('watchlist.store') }}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                },
+                                body: JSON.stringify({
+                                    tmdb_id,
+                                    title,
+                                    poster_path,
+                                    type,
+                                    vote_average,
+                                    release_date,
+                                }),
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.message) {
+                                    this.watchlist = true;
+                                    this.showNotificationWatchlist = true;
+
+                                    setTimeout(() => {
+                                        this.showNotificationWatchlist = false;
+                                    }, 3000);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                alert("Terjadi kesalahan, coba lagi.");
+                            });
+                    }
+                },
+                removeFromWatchlist() {
+                    let tmdb_id = "{{ $detail['id'] }}";
+
+                    fetch("{{ route('watchlist.destroy') }}", {
+                            method: "DELETE",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            },
+                            body: JSON.stringify({
+                                tmdb_id
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.watchlist = false;
+                                this.showNotificationRemoveWatchlist = true;
+
+                                setTimeout(() => {
+                                    this.showNotificationRemoveWatchlist = false;
+                                }, 3000);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                            alert("Terjadi kesalahan, coba lagi.");
+                        });
+                },
+
 
                 addToWatched() {
                     let tmdb_id = "{{ $detail['id'] }}";

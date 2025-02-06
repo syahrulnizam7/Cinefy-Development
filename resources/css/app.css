@@ -8,41 +8,78 @@
 
 /* Sembunyikan scrollbar di seluruh halaman */
 body {
-    overflow: auto; /* Pastikan konten bisa discroll */
+    overflow: auto;
+    /* Pastikan konten bisa discroll */
 }
 
 /* Sembunyikan scrollbar secara spesifik pada elemen tertentu */
 .scrollbar-hidden {
-    -ms-overflow-style: none;  /* Untuk Internet Explorer 10+ */
-    scrollbar-width: none;  /* Untuk Firefox */
+    -ms-overflow-style: none;
+    /* Untuk Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Untuk Firefox */
 }
 
 .scrollbar-hidden::-webkit-scrollbar {
-    display: none;  /* Untuk Chrome, Safari, dan Edge */
+    display: none;
+    /* Untuk Chrome, Safari, dan Edge */
 }
 
-#typing-text, #typing-text-mobile {
+#typing-text,
+#typing-text-mobile {
     display: inline-block;
-    min-width: 11px; /* Sesuaikan dengan kata terpanjang */
+    min-width: 11px;
+    /* Sesuaikan dengan kata terpanjang */
     text-align: left;
     white-space: nowrap;
 }
+
 /* Animasi lingkaran pertama */
 @keyframes moveCircle1 {
-    0% { transform: translate(0, 0); }
-    25% { transform: translate(200px, -300px); } /* Jarak lebih jauh */
-    50% { transform: translate(-180px, 260px); }
-    75% { transform: translate(250px, 150px); }
-    100% { transform: translate(0, 0); }
+    0% {
+        transform: translate(0, 0);
+    }
+
+    25% {
+        transform: translate(200px, -300px);
+    }
+
+    /* Jarak lebih jauh */
+    50% {
+        transform: translate(-180px, 260px);
+    }
+
+    75% {
+        transform: translate(250px, 150px);
+    }
+
+    100% {
+        transform: translate(0, 0);
+    }
 }
 
 /* Animasi lingkaran kedua */
 @keyframes moveCircle2 {
-    0% { transform: translate(0, 0); }
-    25% { transform: translate(-300px, 180px); } /* Jarak lebih jauh */
-    50% { transform: translate(350px, -220px); }
-    75% { transform: translate(-240px, -120px); }
-    100% { transform: translate(0, 0); }
+    0% {
+        transform: translate(0, 0);
+    }
+
+    25% {
+        transform: translate(-300px, 180px);
+    }
+
+    /* Jarak lebih jauh */
+    50% {
+        transform: translate(350px, -220px);
+    }
+
+    75% {
+        transform: translate(-240px, -120px);
+    }
+
+    100% {
+        transform: translate(0, 0);
+    }
 }
 
 
@@ -61,7 +98,8 @@ body {
     box-shadow: 0 0 50px rgba(34, 197, 94, 0.5);
     top: 40%;
     left: -20%;
-    animation: moveCircle1 8s infinite alternate ease-in-out; /* Durasi animasi lebih panjang */
+    animation: moveCircle1 8s infinite alternate ease-in-out;
+    /* Durasi animasi lebih panjang */
 }
 
 .circle.pink {
@@ -69,5 +107,42 @@ body {
     box-shadow: 0 0 50px rgba(244, 114, 182, 0.5);
     top: 10%;
     right: -25%;
-    animation: moveCircle2 10s infinite alternate ease-in-out; /* Durasi animasi lebih panjang */
+    animation: moveCircle2 10s infinite alternate ease-in-out;
+    /* Durasi animasi lebih panjang */
+}
+
+/* Animasi loading */
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    /* disembunyikan secara default */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #06b6d4;
+    /* sesuai tema warna */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 5s linear infinite;
+    /* Durasi animasi diubah menjadi 5 detik */
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }

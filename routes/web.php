@@ -8,18 +8,26 @@ use App\Http\Controllers\ProfileController;
 use App\Models\User;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use App\Http\Controllers\WatchedController;
+use App\Http\Controllers\WatchlistController;
 
 Route::get('login/google', [App\Http\Controllers\Auth\LoginController::class, 'redirectToGoogle']);
 Route::get('login/google/callback', [App\Http\Controllers\Auth\LoginController::class, 'handleGoogleCallback']);
 
-use App\Http\Controllers\WatchedController;
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/watched', [WatchedController::class, 'store'])->name('watched.store');
-    Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile'); // PAKAI INI
+    Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
+
+    // PAKAI INI
+    Route::post('/watchlist', [WatchlistController::class, 'store'])->name('watchlist.store');
+    Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist.index');
+    Route::delete('/watchlist', [WatchlistController::class, 'destroy'])->name('watchlist.destroy');
 });
 
 Route::delete('/watched', [WatchedController::class, 'destroy'])->name('watched.destroy');
+
+Route::get('/watched/check', [WatchedController::class, 'check'])->name('watched.index');
 
 
 Route::post('/logout', function () {
@@ -126,8 +134,6 @@ Route::get('/', function () {
     return view('index', compact('trending', 'latestTrailers'));
 });
 
-
-Route::get('/watched/check', [WatchedController::class, 'check'])->name('watched.index');
 
 
 Route::get('/detail/{type}/{id}', function ($type, $id) {

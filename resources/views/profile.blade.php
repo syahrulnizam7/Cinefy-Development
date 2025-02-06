@@ -26,13 +26,13 @@
                 <p class="text-sm text-gray-400">{{ $user->email }}</p>
 
                 <div class=" flex flex-col items-center text-white mt-11">
-                    <div class="flex gap-5 justify-between w-full text-center">
+                    <div class="flex gap-5 justify-between w-full text-center mt-11">
                         <div>
                             <p class="text-lg font-bold">{{ $watchedCount }}</p>
                             <p class="text-sm text-gray-400">Watched</p>
                         </div>
                         <div>
-                            <p class="text-lg font-bold">count</p>
+                            <p class="text-lg font-bold">{{ $watchlistCount }}</p>
                             <p class="text-sm text-gray-400">Watchlist</p>
                         </div>
                         <div>
@@ -40,6 +40,7 @@
                             <p class="text-sm text-gray-400">Favorites</p>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -51,16 +52,35 @@
                     <div class="w-28 flex-shrink-0 group">
                         <a href="{{ route('detail', ['type' => $item->type, 'id' => $item->tmdb_id]) }}"
                             class="block relative transition-all duration-300 ease-in-out group-hover:brightness-125 group-hover:shadow-lg group-hover:-translate-y-2">
-
                             <img src="https://image.tmdb.org/t/p/w500{{ $item->poster_path }}"
                                 class="rounded-lg shadow-md transition-all duration-300 ease-in-out">
-
                             <p
                                 class="text-xs text-gray-400 mt-2 text-center transition-all duration-300 ease-in-out group-hover:text-white">
                                 {{ $item->title }}
                             </p>
+                            <div
+                                class="absolute inset-0 bg-cyan-400 opacity-0 blur-xl group-hover:opacity-20 transition-all duration-300 ease-in-out">
+                            </div>
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+        </div>
 
-                            <!-- Efek glow -->
+        <!-- Watchlist Section -->
+        <div class="relative hidden md:block mt-8 z-[15]">
+            <h3 class="text-lg font-bold text-white mb-4">Watchlist</h3>
+            <div class="flex gap-4 overflow-x-auto scrollbar-hidden">
+                @foreach ($watchlist as $item)
+                    <div class="w-28 flex-shrink-0 group">
+                        <a href="{{ route('detail', ['type' => $item->type, 'id' => $item->tmdb_id]) }}"
+                            class="block relative transition-all duration-300 ease-in-out group-hover:brightness-125 group-hover:shadow-lg group-hover:-translate-y-2">
+                            <img src="https://image.tmdb.org/t/p/w500{{ $item->poster_path }}"
+                                class="rounded-lg shadow-md transition-all duration-300 ease-in-out">
+                            <p
+                                class="text-xs text-gray-400 mt-2 text-center transition-all duration-300 ease-in-out group-hover:text-white">
+                                {{ $item->title }}
+                            </p>
                             <div
                                 class="absolute inset-0 bg-cyan-400 opacity-0 blur-xl group-hover:opacity-20 transition-all duration-300 ease-in-out">
                             </div>
@@ -72,9 +92,10 @@
 
 
 
+
         <!-- Layout Mobile -->
         <div class="md:hidden ">
-            <div class="bg-gradient-to-b from-cyan-600 to-teal-700 p-8 rounded-3xl shadow-lg">
+            <div class="text-center bg-gradient-to-b from-cyan-600 to-teal-700 p-8 rounded-3xl shadow-lg">
                 <div class="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-white">
                     <img src="{{ $user->profile_picture ?? 'default-avatar.png' }}" alt="{{ $user->name }}"
                         class="object-cover w-full h-full">
@@ -90,7 +111,7 @@
                     <p class="text-sm text-gray-400">Movies</p>
                 </div>
                 <div>
-                    <p class="text-lg font-bold">count</p>
+                    <p class="text-lg font-bold">{{ $watchlistCount }}</p>
                     <p class="text-sm text-gray-400">Watchlist</p>
                 </div>
                 <div>
@@ -112,6 +133,20 @@
                     @endforeach
                 </div>
             </div>
+
+            <div class="mt-2 px-4">
+                <h3 class="text-lg font-bold text-gray-300 mb-4">Watchlist</h3>
+                <div class="flex overflow-x-auto space-x-4 pb-4 scrollbar-hidden">
+                    @foreach ($watchlist as $item)
+                        <div class="w-28 flex-shrink-0">
+                            <img src="https://image.tmdb.org/t/p/w500{{ $item->poster_path }}"
+                                class="rounded-lg shadow-md">
+                            <p class="text-xs text-gray-400 mt-2 text-center">{{ $item->title }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
         </div>
     </div>
 @endsection

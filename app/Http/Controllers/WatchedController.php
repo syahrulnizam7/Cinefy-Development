@@ -52,29 +52,29 @@ class WatchedController extends Controller
 
 
     public function check(Request $request)
-{
-    $tmdb_id = $request->query('tmdb_id');
+    {
+        $tmdb_id = $request->query('tmdb_id');
 
-    $watched = Watched::where('tmdb_id', $tmdb_id)
-                      ->where('user_id', Auth::id())
-                      ->exists();
+        $watched = Watched::where('tmdb_id', $tmdb_id)
+            ->where('user_id', Auth::id())
+            ->exists();
 
-    return response()->json(['watched' => $watched]);
-}
-
-
-public function destroy(Request $request)
-{
-    $tmdb_id = $request->input('tmdb_id');
-
-    $watched = Watched::where('tmdb_id', $tmdb_id)->first();
-    if ($watched) {
-        $watched->delete();
-        return response()->json(['success' => true]);
+        return response()->json(['watched' => $watched]);
     }
 
-    return response()->json(['success' => false, 'message' => 'Item not found.']);
-}
+
+    public function destroy(Request $request)
+    {
+        $tmdb_id = $request->input('tmdb_id');
+
+        $watched = Watched::where('tmdb_id', $tmdb_id)->first();
+        if ($watched) {
+            $watched->delete();
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Item not found.']);
+    }
 
     public function index()
     {
