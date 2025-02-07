@@ -9,7 +9,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use App\Http\Controllers\WatchedController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\WatchlistController;
+use App\Http\Controllers\ExploreController;
 
 Route::get('login/google', [App\Http\Controllers\Auth\LoginController::class, 'redirectToGoogle']);
 Route::get('login/google/callback', [App\Http\Controllers\Auth\LoginController::class, 'handleGoogleCallback']);
@@ -50,6 +52,7 @@ Route::get('/welcome', function () {
 })->name('welcome');
 
 
+Route::get('/explore', [ExploreController::class, 'index'])->name('explore.index');
 
 Route::get('login', function () {
     return view('login'); // Ganti dengan nama blade login yang sesuai
@@ -63,6 +66,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/watchlist', [WatchlistController::class, 'store'])->name('watchlist.store');
     Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist.index');
     Route::delete('/watchlist', [WatchlistController::class, 'destroy'])->name('watchlist.destroy');
+
+    Route::post('/favorite', [FavoriteController::class, 'store'])->name('favorite.store');
+    Route::get('/favorite/check', [FavoriteController::class, 'check'])->name('favorite.index');
+    Route::delete('/favorite', [FavoriteController::class, 'destroy'])->name('favorite.destroy');
 
     Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
 });

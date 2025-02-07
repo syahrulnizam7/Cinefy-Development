@@ -4,8 +4,26 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    @vite('resources/css/app.css')
+
+    <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
+    
+    @vite('resources/css/app.css')
+
+    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style>
+        .scrollbar-hidden {
+            -ms-overflow-style: none;
+            /* Untuk Internet Explorer 10+ */
+            scrollbar-width: none;
+            /* Untuk Firefox */
+        }
+
+        .scrollbar-hidden::-webkit-scrollbar {
+            display: none;
+            /* Untuk Chrome, Safari, dan Edge */
+        }
+    </style> --}}
 
 </head>
 
@@ -26,19 +44,18 @@
         <!-- Footer -->
         @include('components.footer')
 
-        <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
-        <script src="//unpkg.com/alpinejs" defer></script>
+
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-              const loader = document.getElementById("loader");
-              loader.style.display = "flex"; // tampilkan loader saat loading halaman
-          
-              window.onload = () => {
-                loader.style.display = "none"; // sembunyikan loader setelah halaman selesai dimuat
-              };
+                const loader = document.getElementById("loader");
+                loader.style.display = "flex"; // tampilkan loader saat loading halaman
+
+                window.onload = () => {
+                    loader.style.display = "none"; // sembunyikan loader setelah halaman selesai dimuat
+                };
             });
-          </script>
-          
+        </script>
+
     </div>
 </body>
 

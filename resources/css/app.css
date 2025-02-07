@@ -34,6 +34,7 @@ body {
     white-space: nowrap;
 }
 
+
 /* Animasi lingkaran pertama */
 @keyframes moveCircle1 {
     0% {
@@ -41,18 +42,20 @@ body {
     }
 
     25% {
-        transform: translate(200px, -300px);
+        transform: translate(250px, -200px);
     }
 
-    /* Jarak lebih jauh */
+    /* Adjusted to move closer to center */
     50% {
-        transform: translate(-180px, 260px);
+        transform: translate(-150px, 100px);
     }
 
+    /* Adjusted */
     75% {
-        transform: translate(250px, 150px);
+        transform: translate(200px, 50px);
     }
 
+    /* Adjusted */
     100% {
         transform: translate(0, 0);
     }
@@ -65,84 +68,29 @@ body {
     }
 
     25% {
-        transform: translate(-300px, 180px);
+        transform: translate(-250px, 150px);
     }
 
-    /* Jarak lebih jauh */
+    /* Adjusted to move closer to center */
     50% {
-        transform: translate(350px, -220px);
+        transform: translate(300px, -180px);
     }
 
+    /* Adjusted */
     75% {
-        transform: translate(-240px, -120px);
+        transform: translate(-200px, -50px);
     }
 
+    /* Adjusted */
     100% {
         transform: translate(0, 0);
     }
 }
 
-
-.circle {
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.5;
-    z-index: 0;
+.animate-moveCircle1 {
+    animation: moveCircle1 8s ease-in-out infinite;
 }
 
-.circle.green {
-    background-color: rgba(34, 197, 94, 1);
-    box-shadow: 0 0 50px rgba(34, 197, 94, 0.5);
-    top: 40%;
-    left: -20%;
-    animation: moveCircle1 8s infinite alternate ease-in-out;
-    /* Durasi animasi lebih panjang */
-}
-
-.circle.pink {
-    background-color: rgba(244, 114, 182, 1);
-    box-shadow: 0 0 50px rgba(244, 114, 182, 0.5);
-    top: 10%;
-    right: -25%;
-    animation: moveCircle2 10s infinite alternate ease-in-out;
-    /* Durasi animasi lebih panjang */
-}
-
-/* Animasi loading */
-#loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: none;
-    /* disembunyikan secara default */
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-.spinner {
-    border: 8px solid #f3f3f3;
-    border-top: 8px solid #06b6d4;
-    /* sesuai tema warna */
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 5s linear infinite;
-    /* Durasi animasi diubah menjadi 5 detik */
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
+.animate-moveCircle2 {
+    animation: moveCircle2 8s ease-in-out infinite;
 }

@@ -1,5 +1,5 @@
 <!-- Footer Section -->
-<footer class="bg-gradient-to-r from-gray-900 to-black py-8 text-white">
+<footer class="w-full bg-gradient-to-r from-gray-900 to-black py-8 text-white">
     <div class="container mx-auto px-6 flex justify-between items-center">
         <!-- Logo Section -->
         <div>

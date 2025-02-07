@@ -1,12 +1,5 @@
 @extends('layouts.app')
 
-<!-- Lingkaran Blur dengan Glow  gak gerak-->
-{{-- <div
-    class="absolute top-40 -left-52 md:top-52 lg:top-80 lg:-left-40 w-[400px] h-[400px] bg-green-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-green-500/50 z-10">
-</div>
-<div
-    class="absolute -top-44 -right-56 lg:-top-64 lg:-right-52 w-[420px] h-[420px] bg-pink-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-pink-500/50 z-10">
-</div> --}}
 <!-- Lingkaran Blur dengan Glow gerak -->
 <div
     class="fixed top-40 -left-52 md:top-52 lg:top-80 lg:-left-40 w-[400px] h-[400px] bg-green-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-green-500/50 -z-10 animate-moveCircle1">
@@ -21,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 
     <!-- Hero Section -->
-    <section class="relative  text-white  lg:mt-24 lg:-mb-12 ">
+    <section class="relative  text-white  lg:mt-20 lg:-mb-12 ">
         <div class="relative flex flex-col lg:grid lg:grid-cols-2 gap-12 items-center w-full">
 
             <!-- Bagian Kiri (Text) - Muncul hanya di Desktop -->
@@ -38,10 +31,11 @@
                         class="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">
                         Start Watching
                     </a>
-                    <a href="#"
+                    <a href="{{ route('explore.index') }}"
                         class="border border-blue-600 text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">
                         Explore Now
                     </a>
+
                 </div>
             </div>
 
@@ -97,7 +91,7 @@
 
 
     {{-- Trending Section --}}
-    <section class="container mx-auto px-6 py-1 text-white relative z-20">
+    <section class="w-full  mx-auto px-6 py-1 text-white relative z-20">
         <h2 class="text-2xl lg:text-3xl font-bold mb-6 ">Trending</h2>
         <div class="overflow-x-auto overflow-y-hidden scrollbar-hidden pt-4 pb-4 h-[335px]">
             <div class="flex space-x-4 h-auto">
@@ -125,7 +119,7 @@
 
     {{-- Latest Trailers Section --}}
     <section
-        class="w-full mt-4 relative container mx-auto px-6  py-10 text-white group transition-all duration-700 sm:w-full w- md:w-full lg:w-full"
+        class="w-full mt-4 relative  mx-auto px-6  py-10 text-white group transition-all duration-700 sm:w-full w- md:w-full lg:w-full"
         x-data="{ playing: false, trailerUrl: '' }"
         :style="'background-image: url(' + trailerUrl +
             '); background-size: cover; background-position: center; background-blend-mode: overlay;'">
@@ -206,57 +200,57 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
             0% {
                 transform: translate(0, 0);
             }
-    
+
             25% {
                 transform: translate(250px, -200px);
             }
-    
+
             /* Adjusted to move closer to center */
             50% {
                 transform: translate(-150px, 100px);
             }
-    
+
             /* Adjusted */
             75% {
                 transform: translate(200px, 50px);
             }
-    
+
             /* Adjusted */
             100% {
                 transform: translate(0, 0);
             }
         }
-    
+
         /* Animasi lingkaran kedua */
         @keyframes moveCircle2 {
             0% {
                 transform: translate(0, 0);
             }
-    
+
             25% {
                 transform: translate(-250px, 150px);
             }
-    
+
             /* Adjusted to move closer to center */
             50% {
                 transform: translate(300px, -180px);
             }
-    
+
             /* Adjusted */
             75% {
                 transform: translate(-200px, -50px);
             }
-    
+
             /* Adjusted */
             100% {
                 transform: translate(0, 0);
             }
         }
-    
+
         .animate-moveCircle1 {
             animation: moveCircle1 8s ease-in-out infinite;
         }
-    
+
         .animate-moveCircle2 {
             animation: moveCircle2 8s ease-in-out infinite;
         }

@@ -45,8 +45,17 @@
             <div class="w-full md:w-3/5 lg:w-1/2">
                 <p class="text-sm text-gray-400 uppercase">Season 1 |
                     {{ \Carbon\Carbon::parse($detail['release_date'] ?? $detail['first_air_date'])->year }}</p>
-                <h1 class="text-4xl font-bold">{{ $detail['title'] ?? $detail['name'] }}</h1>
-
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-4xl font-bold">{{ $detail['title'] ?? $detail['name'] }}</h1>
+                    
+                        <!-- Favorite Button -->
+                        <button @click="addToFavorite"
+                            :class="favorite ? 'text-yellow-400 hover:text-yellow-500' : 'text-gray-400 hover:text-yellow-400'"
+                            class="text-2xl transition-all duration-300 transform hover:scale-110 scale-125">
+                            <ion-icon :name="favorite ? 'star' : 'star-outline'"></ion-icon>
+                        </button>
+                    </div>
+                    
                 <div class="flex items-center space-x-2 mt-2">
                     <div class="flex space-x-1">
                         @for ($i = 0; $i < floor($detail['vote_average'] / 2); $i++)
@@ -65,8 +74,10 @@
                 <p class="mt-4 text-gray-300">{{ Str::limit($detail['overview'], 200, '...') }}</p>
 
                 <div class="mt-6 flex space-x-4">
-                    <button @click="addToWatched" :class="watched ? 'bg-green-600' : 'bg-blue-600'"
-                        class="text-center flex items-center  text-white px-4 py-2 rounded-full transition-all duration-300">
+                    <!-- Watched Button -->
+                    <button @click="addToWatched"
+                        :class="watched ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'"
+                        class="text-center flex items-center text-white px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                         <template x-if="watched">
                             <span class="flex items-center">
                                 <ion-icon name="checkmark-circle" class="text-white text-lg"></ion-icon>
@@ -78,9 +89,11 @@
                         </template>
                     </button>
 
+                    <!-- Watchlist Button -->
                     <button @click="addToWatchlist"
-                        :class="watchlist ? 'bg-yellow-600' : 'border-gray-300 hover:bg-gray-800'"
-                        class="border px-6 py-3 rounded-full transition-colors duration-300">
+                        :class="watchlist ? 'bg-yellow-600 hover:bg-yellow-700' :
+                            'border-gray-300 hover:bg-gray-800 hover:text-white'"
+                        class="border px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                         <template x-if="watchlist">
                             <span class="flex items-center">
                                 <ion-icon name="bookmark" class="text-white text-lg"></ion-icon>
@@ -94,6 +107,7 @@
 
 
                 </div>
+
 
 
                 <!-- Modal Konfirmasi Hapus -->
@@ -120,6 +134,37 @@
                                     Yes
                                 </button>
                                 <button @click="showDeleteModal = false"
+                                    class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
+                                    No
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal Konfirmasi Hapus -->
+                <div x-show="showDeleteModalFavorite" x-transition
+                    class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60 backdrop-blur">
+                    <div
+                        class="relative bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-lg shadow-lg w-full max-w-md p-6">
+                        <!-- Tombol Tutup -->
+                        <button @click="showDeleteModalFavorite = false"
+                            class="absolute top-3 right-3 text-gray-300 hover:text-white">
+                            <ion-icon name="close" class="text-2xl"></ion-icon>
+                        </button>
+
+                        <!-- Konten Modal -->
+                        <div class="text-center">
+                            <h2 class="text-xl font-semibold text-white">Konfirmasi Hapus</h2>
+                            <p class="mt-4 text-gray-300">Apakah Anda yakin ingin menghapus item ini dari daftar Favorite?
+                            </p>
+
+                            <!-- Tombol Aksi -->
+                            <div class="mt-6 flex justify-center space-x-4">
+                                <button @click="deleteFromFavorite"
+                                    class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
+                                    Yes
+                                </button>
+                                <button @click="showDeleteModalFavorite = false"
                                     class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
                                     No
                                 </button>
@@ -178,7 +223,25 @@
                     class="fixed top-5 right-5 bg-pink-600 text-white px-6 py-3 rounded-lg shadow-lg z-50" x-cloak>
                     <span>🎉 Successfully delete item from Watched list!</span>
                 </div>
+                <!-- Notifikasi -->
+                <div x-show="showNotificationFavorite"
+                    x-transition:enter="transition ease-out duration-300 transform opacity-0 scale-90"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-300 transform opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-90"
+                    class="fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50" x-cloak>
+                    <span>🎉 Successfully add item to the fav list!</span>
+                </div>
 
+                <!-- Notifikasi -->
+                <div x-show="showNotificationFavorite2"
+                    x-transition:enter="transition ease-out duration-300 transform opacity-0 scale-90"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-300 transform opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-90"
+                    class="fixed top-5 right-5 bg-pink-600 text-white px-6 py-3 rounded-lg shadow-lg z-50" x-cloak>
+                    <span>🎉 Successfully delete item from Fav list!</span>
+                </div>
 
 
                 <div class="mt-6 grid grid-cols-2 md:grid-cols-2 gap-6">
@@ -223,9 +286,15 @@
                 watchlist: false,
                 showNotificationWatchlist: false,
                 showNotificationRemoveWatchlist: false,
+
+                favorite: false,
+                showNotificationFavorite: false,
+                showNotificationFavorite2: false,
+                showDeleteModalFavorite: false,
                 init() {
                     this.checkIfWatched();
                     this.checkIfWatchlist();
+                    this.checkIfFavorite();
                 },
 
                 checkIfWatched() {
@@ -245,6 +314,24 @@
                         })
                         .catch(error => console.error("Error checking watched status:", error));
                 },
+                checkIfFavorite() {
+                    let tmdb_id = "{{ $detail['id'] }}";
+
+                    fetch("{{ route('favorite.index') }}?tmdb_id=" + tmdb_id, {
+                            method: "GET",
+                            headers: {
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.favorite) {
+                                this.favorite = true;
+                            }
+                        })
+                        .catch(error => console.error("Error checking favorite status:", error));
+                },
+
 
                 checkIfWatchlist() {
                     let tmdb_id = "{{ $detail['id'] }}";
@@ -265,59 +352,7 @@
                 },
 
 
-                addToWatchlist() {
-                    let tmdb_id = "{{ $detail['id'] }}";
-                    let title = "{{ $detail['title'] ?? $detail['name'] }}";
-                    let poster_path = "{{ $detail['poster_path'] }}";
-                    let type = "{{ $type }}";
-                    let vote_average = "{{ $detail['vote_average'] ?? 0 }}";
-                    let release_date =
-                        "{{ $detail['release_date'] ?? ($detail['first_air_date'] ?? '') }}";
 
-                    if (!tmdb_id) {
-                        alert("Data tidak lengkap, tidak bisa menyimpan.");
-                        return;
-                    }
-                    if (!"{{ Auth::check() }}") { // Cek apakah pengguna login
-                        this.showLoginModal = true; // Tampilkan modal login
-                        return;
-                    }
-
-                    if (this.watchlist) {
-                        this.removeFromWatchlist();
-                    } else {
-                        fetch("{{ route('watchlist.store') }}", {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                                },
-                                body: JSON.stringify({
-                                    tmdb_id,
-                                    title,
-                                    poster_path,
-                                    type,
-                                    vote_average,
-                                    release_date,
-                                }),
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.message) {
-                                    this.watchlist = true;
-                                    this.showNotificationWatchlist = true;
-
-                                    setTimeout(() => {
-                                        this.showNotificationWatchlist = false;
-                                    }, 3000);
-                                }
-                            })
-                            .catch(error => {
-                                console.error("Error:", error);
-                                alert("Terjadi kesalahan, coba lagi.");
-                            });
-                    }
-                },
 
                 removeFromWatchlist() {
                     let tmdb_id = "{{ $detail['id'] }}";
@@ -405,6 +440,115 @@
                     }
                 },
 
+                addToFavorite() {
+                    let tmdb_id = "{{ $detail['id'] }}";
+                    let title = "{{ $detail['title'] ?? $detail['name'] }}";
+                    let poster_path = "{{ $detail['poster_path'] }}";
+                    let type = "{{ $type }}";
+                    let vote_average = "{{ $detail['vote_average'] ?? 0 }}";
+                    let release_date =
+                        "{{ $detail['release_date'] ?? ($detail['first_air_date'] ?? '') }}";
+
+                    if (!tmdb_id) {
+                        alert("Data tidak lengkap, tidak bisa menyimpan.");
+                        return;
+                    }
+
+                    if (!"{{ Auth::check() }}") { // Cek apakah pengguna login
+                        this.showLoginModal = true; // Tampilkan modal login
+                        return;
+                    }
+                    if (this.favorite) {
+                        this.showDeleteModalFavorite = true; // Tampilkan modal konfirmasi
+                    } else {
+                        fetch("{{ route('favorite.store') }}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                },
+                                body: JSON.stringify({
+                                    tmdb_id,
+                                    title,
+                                    poster_path,
+                                    type,
+                                    vote_average,
+                                    release_date,
+                                }),
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.message) {
+                                    this.favorite = true;
+                                    this.showNotificationFavorite = true;
+
+                                    // Sembunyikan notifikasi setelah 3 detik
+                                    setTimeout(() => {
+                                        this.showNotificationFavorite = false;
+                                    }, 3000);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                alert("Terjadi kesalahan, coba lagi.");
+                            });
+                    }
+                },
+
+                addToWatchlist() {
+                    let tmdb_id = "{{ $detail['id'] }}";
+                    let title = "{{ $detail['title'] ?? $detail['name'] }}";
+                    let poster_path = "{{ $detail['poster_path'] }}";
+                    let type = "{{ $type }}";
+                    let vote_average = "{{ $detail['vote_average'] ?? 0 }}";
+                    let release_date =
+                        "{{ $detail['release_date'] ?? ($detail['first_air_date'] ?? '') }}";
+
+                    if (!tmdb_id) {
+                        alert("Data tidak lengkap, tidak bisa menyimpan.");
+                        return;
+                    }
+                    if (!"{{ Auth::check() }}") { // Cek apakah pengguna login
+                        this.showLoginModal = true; // Tampilkan modal login
+                        return;
+                    }
+
+                    if (this.watchlist) {
+                        this.removeFromWatchlist();
+                    } else {
+                        fetch("{{ route('watchlist.store') }}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                },
+                                body: JSON.stringify({
+                                    tmdb_id,
+                                    title,
+                                    poster_path,
+                                    type,
+                                    vote_average,
+                                    release_date,
+                                }),
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.message) {
+                                    this.watchlist = true;
+                                    this.showNotificationWatchlist = true;
+
+                                    setTimeout(() => {
+                                        this.showNotificationWatchlist = false;
+                                    }, 3000);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                alert("Terjadi kesalahan, coba lagi.");
+                            });
+                    }
+                },
+
                 deleteFromWatched() {
                     let tmdb_id = "{{ $detail['id'] }}";
 
@@ -435,7 +579,38 @@
                             console.error("Error:", error);
                             alert("Terjadi kesalahan, coba lagi.");
                         });
-                }
+                },
+                deleteFromFavorite() {
+                    let tmdb_id = "{{ $detail['id'] }}";
+
+                    fetch("{{ route('favorite.destroy') }}", {
+                            method: "DELETE",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            },
+                            body: JSON.stringify({
+                                tmdb_id
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.favorite = false;
+                                this.showDeleteModalFavorite = false; // Tutup modal
+                                this.showNotificationFavorite2 = true;
+
+                                // Sembunyikan notifikasi setelah 3 detik
+                                setTimeout(() => {
+                                    this.showNotificationFavorite2 = false;
+                                }, 3000);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                            alert("Terjadi kesalahan, coba lagi.");
+                        });
+                },
             }));
         });
     </script>

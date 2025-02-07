@@ -4,6 +4,7 @@
         navOpen: true,
         searchOpen: false,
         query: '',
+        modalOpen: false,
         results: [],
         performSearch() {
             if (this.query.trim().length < 3) {
@@ -53,15 +54,16 @@
                     <!-- Dropdown Menu -->
                     <div x-show="open" @click.outside="open = false"
                         class="absolute right-0 mt-2 w-48 bg-gray-800 text-white shadow-lg rounded-xl border border-gray-700 z-10">
-                        <ul class="py-2">
+                        <ul class="py-2 mx-auto items-center ">
                             <!-- Profile Link -->
                             <li>
                                 <a href="{{ route('profile') }}"
-                                    class="block px-4 py-2 text-sm hover:bg-gray-700 rounded-md transition">Lihat Profil</a>
+                                    class="block px-4 py-2 w-full text-sm hover:bg-gray-700 rounded-md transition">Lihat
+                                    Profil</a>
                             </li>
                             <!-- Logout -->
                             <li>
-                                <form method="POST" action="{{ route('logout') }}" class="mt-1">
+                                <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
                                         class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-700 rounded-md transition">Logout</button>
@@ -86,7 +88,7 @@
                     <button @click="searchOpen = true"
                         class="text-white font-bold text-sm hover:text-blue-600">Search</button>
                 </li>
-                <li class="text-white font-bold text-sm hover:text-blue-600"><a href="">Add</a></li>
+                <li class="text-white font-bold text-sm hover:text-blue-600"><a href="/explore">Explore</a></li>
                 <li class="text-white font-bold text-sm hover:text-blue-600"><a href="">Activity</a></li>
             </ul>
         </div>
@@ -138,13 +140,14 @@
         </div>
     </div>
 
+    {{-- Navbar bottom --}}
     <div x-show="navOpen" class="fixed scale-75 rounded-full z-20 bottom-1 right-1 left-1 p-4 lg:hidden bg-blue-600 "
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-10"
         x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-300"
         x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-10">
         <ul class="flex justify-between">
             <li class="group">
-                <a href="" class="text-white flex flex-col items-center gap-1 group-hover:text-blue-500">
+                <a href="/" class="text-white flex flex-col items-center gap-1 group-hover:text-blue-500">
                     <ion-icon name="home" class="text-2xl group-hover:text-blue-500"></ion-icon>
                     <span class="text-white text-base font-bold group-hover:text-blue-500">Home</span>
                 </a>
@@ -159,11 +162,11 @@
             </li>
 
             <li class="group">
-                <a href="" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
-                    <ion-icon name="add-circle"
+                <a href="/explore" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
+                    <ion-icon name="compass"
                         class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
                     <span
-                        class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">Add</span>
+                        class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">Explore</span>
                 </a>
             </li>
             <li class="group">
@@ -175,13 +178,49 @@
                 </a>
             </li>
             <li class="group">
-                <a href="{{ route('profile') }}" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
-                    <ion-icon name="person"
-                        class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
-                    <span
-                        class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">Profile</span>
-                </a>
+                @auth
+                    <a href="{{ route('profile') }}" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
+                        <ion-icon name="person"
+                            class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
+                        <span
+                            class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">
+                            Profile
+                        </span>
+                    </a>
+                @else
+                    <button @click="modalOpen = true" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
+
+                        <ion-icon name="apps"
+                            class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
+                        <span
+                            class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">
+                            More
+                        </span>
+                    </button>
+                @endauth
             </li>
+
         </ul>
     </div>
+    <!-- Modal More (Login & Sign Up) -->
+    <div x-show="modalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="modalOpen = false">
+
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-80 text-center" @click.stop>
+            <!-- Mencegah klik di dalam modal menutupnya -->
+            <h2 class="text-white text-lg font-semibold mb-4">Welcome!</h2>
+            <p class="text-gray-400 text-sm mb-6">Login or sign up to access more features.</p>
+            <a href="{{ route('login') }}"
+                class="block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg mb-3 transition">
+                Login
+            </a>
+            <a href="{{ url('login/google') }}"
+                class="block bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
+                Sign Up
+            </a>
+        </div>
+    </div>
+
 </nav>
