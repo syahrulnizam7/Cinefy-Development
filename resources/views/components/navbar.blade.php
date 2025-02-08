@@ -24,8 +24,8 @@
                             type: item.type,
                             // Jika ada poster_path, gabungkan dengan URL TMDB
                             // Jika tidak ada poster_path, gunakan gambar fallback
-                            poster_path: item.poster_path ?
-                                `https://image.tmdb.org/t/p/w92${item.poster_path}` : '/images/noimg.png',
+                            poster_path: item.poster_path.startsWith('http') ? item.poster_path : `https://image.tmdb.org/t/p/w92${item.poster_path}`,
+    
                             average_rating: typeof item.average_rating === 'number' ? item.average_rating.toFixed(1) : 'N/A'
                         }));
                 })
@@ -85,9 +85,11 @@
             <ul class="flex gap-16">
                 <li class="text-white font-bold text-sm hover:text-blue-600"><a href="/">Home</a></li>
                 <li>
-                    <button @click="searchOpen = true"
-                        class="text-white font-bold text-sm hover:text-blue-600">Search</button>
+                    <a href="javascript:void(0);" @click="searchOpen = true"
+                        class="text-white font-bold text-sm hover:text-blue-600">Search</a>
                 </li>
+
+
                 <li class="text-white font-bold text-sm hover:text-blue-600"><a href="/explore">Explore</a></li>
                 <li class="text-white font-bold text-sm hover:text-blue-600"><a href="">Activity</a></li>
             </ul>
@@ -124,8 +126,8 @@
                 <template x-for="result in results" :key="result.id">
                     <a :href="'/detail/' + result.type + '/' + result.id"
                         class="flex items-center p-4 hover:bg-gray-700 transition duration-200 rounded-md">
-                        <img :src="result.poster_path ? `https://image.tmdb.org/t/p/w92${result.poster_path}` : '/images/noimg.png'"
-                            alt="Poster" class="w-16 h-24 object-cover mr-4 rounded-md">
+
+                        <img :src="result.poster_path" alt="Poster" class="w-16 h-24 object-cover mr-4 rounded-md">
 
                         <div>
                             <p class="font-bold text-lg" x-text="result.title"></p>
@@ -136,6 +138,9 @@
                         </div>
                     </a>
                 </template>
+
+
+
             </div>
         </div>
     </div>

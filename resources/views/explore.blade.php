@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-20 mx-auto lg:mt-16 px-4 py-8 text-white relative">
+    <div class=" mt-20 mx-auto lg:mt-16 px-4 py-8 text-white relative">
         <h1
             class="relative text-2xl font-semibold text-center text-white 
             lg:before:content-[''] lg:before:absolute lg:before:w-[450px] before:h-[2px] before:bg-gray-700 before:left-[-40px] before:top-1/2 
@@ -9,35 +9,44 @@
             Explore Your Next Watch
         </h1>
 
-        <!-- Filter Section -->
-        <div class="bg-gray-900 p-4 rounded-lg shadow-md flex flex-wrap gap-2 mt-6">
-            <form method="GET" action="{{ route('explore.index') }}" class="flex flex-wrap gap-2 w-full md:w-auto">
-                <select name="genre" class="p-2 rounded bg-gray-800 border border-gray-700">
-                    <option value="">All Genres</option>
-                    @foreach ($genres as $genre)
-                        <option value="{{ $genre['id'] }}" {{ request('genre') == $genre['id'] ? 'selected' : '' }}>
-                            {{ $genre['name'] }}
-                        </option>
-                    @endforeach
-                </select>
+        <form method="GET" action="{{ route('explore.index') }}" class="flex flex-wrap gap-2 w-full md:w-auto mt-4">
+            <!-- Genre Filter -->
+            <select name="genre" class="p-2 rounded bg-gray-800 border border-gray-700">
+                <option value="">All Genres</option>
+                @foreach ($genres as $genre)
+                    <option value="{{ $genre['id'] }}" {{ request('genre') == $genre['id'] ? 'selected' : '' }}>
+                        {{ $genre['name'] }}
+                    </option>
+                @endforeach
+            </select>
 
-                <input type="number" name="year" min="1900" max="{{ date('Y') }}" value="{{ request('year') }}"
-                    class="p-2 rounded bg-gray-800 border border-gray-700" placeholder="Year">
+            <!-- Year Filter -->
+            <input type="number" name="year" min="1900" max="{{ date('Y') }}" value="{{ request('year') }}"
+                class="p-2 rounded bg-gray-800 border border-gray-700" placeholder="Year">
 
-                <input type="number" name="rating" min="0" max="10" step="0.1"
-                    value="{{ request('rating') }}" class="p-2 rounded bg-gray-800 border border-gray-700"
-                    placeholder="Min Rating">
+            <!-- Rating Filter -->
+            <input type="number" name="rating" min="0" max="10" step="0.1"
+                value="{{ request('rating') }}" class="p-2 rounded bg-gray-800 border border-gray-700"
+                placeholder="Min Rating">
 
-                <select name="type" class="p-2 rounded bg-gray-800 border border-gray-700">
-                    <option value="movie" {{ request('type') == 'movie' ? 'selected' : '' }}>Movies</option>
-                    <option value="tv" {{ request('type') == 'tv' ? 'selected' : '' }}>TV Shows</option>
-                </select>
+            <!-- Type Filter -->
+            <select name="type" class="p-2 rounded bg-gray-800 border border-gray-700">
+                <option value="" {{ request('type') == '' ? 'selected' : '' }}>All</option>
+                <option value="movie" {{ request('type') == 'movie' ? 'selected' : '' }}>Movies</option>
+                <option value="tv" {{ request('type') == 'tv' ? 'selected' : '' }}>TV Shows</option>
+            </select>
 
-                <input type="text" name="search" id="search" value="{{ request('search') }}"
-                    class="p-2 rounded bg-gray-800 border border-gray-700" placeholder="Search by title" autocomplete="off">
-                <button type="submit" class="bg-cyan-600 px-4 py-2 rounded-lg text-white">Apply</button>
-            </form>
-        </div>
+            <!-- Search Filter -->
+            <input type="text" name="search" value="{{ request('search') }}"
+                class="p-2 rounded bg-gray-800 border border-gray-700" placeholder="Search by title" autocomplete="off">
+
+            <!-- Apply Button -->
+            <button type="submit" class="bg-cyan-600 px-4 py-2 rounded-lg text-white">Apply</button>
+        </form>
+
+
+
+
 
         <!-- Autocomplete Results -->
         <div id="autocomplete-results"
@@ -47,16 +56,19 @@
         <!-- Movies/TV Shows List -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-8">
             @foreach ($items as $index => $item)
-                <a href="{{ route('detail', ['type' => $mediaType, 'id' => $item['id']]) }}"
+                <a href="{{ route('detail', ['type' => $item['media_type'] ?? $mediaType, 'id' => $item['id']]) }}"
                     class="group block bg-gray-800 rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 hover:shadow-xl relative hover:brightness-110 opacity-0 animate-fadeIn"
                     style="animation-delay: {{ $index * 100 }}ms">
-                    <img src="https://image.tmdb.org/t/p/w200{{ $item['poster_path'] }}"
+                    <img src="{{ $item['poster_path'] ? 'https://image.tmdb.org/t/p/w200' . $item['poster_path'] : asset('/images/noimg.png') }}"
                         alt="{{ $item['title'] ?? $item['name'] }}"
                         class="w-full h-full object-cover transform group-hover:scale-110 transition-all group-hover:brightness-125">
+
+
                     <div class="p-2 absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black to-transparent">
                         <h2 class="text-sm font-bold text-white truncate">{{ $item['title'] ?? $item['name'] }}</h2>
-                        <p class="text-xs opacity-70 mt-1 text-white">⭐ {{ $item['vote_average'] }}/10 | 📅
-                            {{ $item['release_date'] ?? $item['first_air_date'] }}</p>
+                        <p class="text-xs opacity-70 mt-1 text-white">⭐ {{ $item['vote_average'] ?? 'N/A' }}/10 | 📅
+                            {{ $item['release_date'] ?? ($item['first_air_date'] ?? 'Unknown') }}</p>
+
                     </div>
                 </a>
             @endforeach
@@ -92,31 +104,42 @@
                 filters.forEach((value, key) => {
                     url += `&${key}=${value}`;
                 });
-
                 // Perform the AJAX request to get the next page of items
                 fetch(url)
                     .then(response => response.text())
                     .then(data => {
-                        // Append new items to the grid
                         let grid = document.querySelector('.grid');
                         let parser = new DOMParser();
                         let doc = parser.parseFromString(data, 'text/html');
-                        let newItems = doc.querySelector('.grid').innerHTML;
-                        grid.innerHTML += newItems;
+                        let newItems = doc.querySelectorAll('.grid > a'); // Ambil elemen <a> baru
 
-                        // If no more items, hide the button
-                        let newItemsCount = doc.querySelectorAll('.grid > a').length;
-                        if (newItemsCount === 0) {
+                        if (newItems.length === 0) {
                             document.getElementById('load-more-btn').style.display = 'none';
+                            return;
                         }
 
-                        page++; // Update current page
+                        // Tambahkan item baru ke grid
+                        newItems.forEach((item, index) => {
+                            item.classList.add('opacity-0'); // Tambahkan opacity-0 sebelum masuk ke DOM
+                            grid.appendChild(item);
+
+                            // Aktifkan animasi fadeIn setelah elemen ditambahkan ke DOM
+                            setTimeout(() => {
+                                item.classList.add('animate-fadeIn');
+                                item.style.animationDelay =
+                                    `${index * 100}ms`; // Delay animasi untuk efek berurutan
+                                item.classList.remove(
+                                    'opacity-0'); // Hapus opacity-0 agar muncul dengan animasi
+                            }, 50);
+                        });
+
+                        page++; // Update halaman
                         loading = false; // Reset loading flag
                     })
                     .catch(error => {
                         console.error('Error loading more items:', error);
-                        loading = false; // Reset loading flag
                     });
+
             });
 
             // Autocomplete Search

@@ -8,21 +8,24 @@
             <div class="absolute inset-0 bg-gradient-to-l from-black/80 via-black/50 to-transparent backdrop-blur-sm"></div>
         </div>
 
-        <div class="relative container mx-auto px-6 py-20 flex flex-col md:flex-row items-center gap-8 h-full">
+        <div class="relative  mx-auto lg:px-16 px-6 py-20 lg:py-32 flex flex-col md:flex-row items-center gap-8 h-full">
             <!-- Poster with Hover Effect and Play Icon -->
             <div class="w-2/5 md:w-1/4 group relative overflow-hidden cursor-pointer" x-data="{ open: false, trailerUrl: null }">
-                <img src="https://image.tmdb.org/t/p/w500{{ $detail['poster_path'] }}"
-                    alt="{{ $detail['title'] ?? $detail['name'] }}"
-                    class="w-full rounded-lg shadow-lg transition-all duration-500 group-hover:blur-sm group-hover:scale-105">
-                <div
-                    class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div class="relative w-full rounded-lg overflow-hidden">
+                    <img src="{{ $detail['poster_path'] ? 'https://image.tmdb.org/t/p/w500' . $detail['poster_path'] : asset('images/noimg.png') }}"
+                        alt="{{ $detail['title'] ?? $detail['name'] }}"
+                        class="w-full transition-all duration-500 group-hover:blur-sm group-hover:scale-105">
+                </div>
+                
+                
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button
                         @click="open = true; trailerUrl = 'https://www.youtube.com/embed/{{ $trailerKey }}?autoplay=1';"
                         class="relative p-3 bg-transparent rounded-full border-4 border-white group hover:bg-transparent flex items-center justify-center">
                         <ion-icon name="play" class="text-white text-3xl"></ion-icon>
                     </button>
                 </div>
-
+            
                 <div x-show="open" x-transition:enter="transition opacity-0 ease-in-out duration-500"
                     x-transition:enter-end="opacity-100"
                     x-transition:leave="transition opacity-100 ease-in-out duration-500"
@@ -40,22 +43,23 @@
                     </div>
                 </div>
             </div>
+            
 
             <!-- Details -->
             <div class="w-full md:w-3/5 lg:w-1/2">
                 <p class="text-sm text-gray-400 uppercase">Season 1 |
                     {{ \Carbon\Carbon::parse($detail['release_date'] ?? $detail['first_air_date'])->year }}</p>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-4xl font-bold">{{ $detail['title'] ?? $detail['name'] }}</h1>
-                    
-                        <!-- Favorite Button -->
-                        <button @click="addToFavorite"
-                            :class="favorite ? 'text-yellow-400 hover:text-yellow-500' : 'text-gray-400 hover:text-yellow-400'"
-                            class="text-2xl transition-all duration-300 transform hover:scale-110 scale-125">
-                            <ion-icon :name="favorite ? 'star' : 'star-outline'"></ion-icon>
-                        </button>
-                    </div>
-                    
+                <div class="flex items-center gap-2">
+                    <h1 class="text-4xl font-bold">{{ $detail['title'] ?? $detail['name'] }}</h1>
+
+                    <!-- Favorite Button -->
+                    <button @click="addToFavorite"
+                        :class="favorite ? 'text-yellow-400 hover:text-yellow-500' : 'text-gray-400 hover:text-yellow-400'"
+                        class="text-2xl transition-all duration-300 transform hover:scale-110 scale-125">
+                        <ion-icon :name="favorite ? 'star' : 'star-outline'"></ion-icon>
+                    </button>
+                </div>
+
                 <div class="flex items-center space-x-2 mt-2">
                     <div class="flex space-x-1">
                         @for ($i = 0; $i < floor($detail['vote_average'] / 2); $i++)
@@ -260,14 +264,16 @@
     </div>
 
     <!-- Cast Section -->
-    <div class="container mx-auto px-6 py-10">
+    <div class=" mx-auto px-6 py-10">
         <h2 class="text-2xl font-semibold text-white mb-4">Cast</h2>
         <div class="flex overflow-x-auto space-x-4 pb-4 scrollbar-hidden">
             @foreach ($cast as $actor)
-                <div class="flex-none w-32 text-center group relative">
-                    <img src="https://image.tmdb.org/t/p/w500{{ $actor['profile_path'] ?? '/default-profile.jpg' }}"
-                        alt="{{ $actor['name'] }}"
-                        class="w-full rounded-full shadow-lg mb-2 transition-all duration-500 group-hover:rotate-2 group-hover:brightness-110 group-hover:shadow-2xl cursor-pointer">
+                <div class="flex-none w-32 text-center group relative cast-item">
+                    <a href="{{ route('cast.show', ['id' => $actor['id']]) }}">
+                        <img src="https://image.tmdb.org/t/p/w500{{ $actor['profile_path'] ?? '/default-profile.jpg' }}"
+                            alt="{{ $actor['name'] }}"
+                            class="w-full rounded-full shadow-lg mb-2 transition-all duration-500 group-hover:rotate-2 group-hover:brightness-110 group-hover:shadow-2xl cursor-pointer">
+                    </a>
                     <p class="font-semibold text-sm text-white">{{ $actor['name'] }}</p>
                     <p class="text-xs text-gray-400">As {{ $actor['character'] }}</p>
                 </div>
@@ -275,6 +281,57 @@
         </div>
     </div>
 
+    <style>
+        /* Elemen cast-item disembunyikan pada awalnya dengan transformasi flip */
+        .cast-item {
+            opacity: 0;
+            transform: rotateY(90deg);
+            /* Posisi terbalik pada sumbu Y */
+            animation: flipIn 2s ease-out forwards;
+            /* Ubah durasi menjadi 1 detik */
+        }
+
+        /* Animasi flip masuk */
+        @keyframes flipIn {
+            0% {
+                opacity: 0;
+                transform: rotateY(90deg);
+                /* Posisi terbalik */
+            }
+
+            100% {
+                opacity: 1;
+                transform: rotateY(0deg);
+                /* Posisi normal */
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const castItems = document.querySelectorAll('.cast-item');
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Menambahkan kelas 'visible' untuk memulai animasi
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry
+                            .target); // Hentikan pengamatan setelah elemen terlihat
+                    }
+                });
+            }, {
+                threshold: 0.2 // 20% dari elemen terlihat sebelum animasi dimulai
+            });
+
+            castItems.forEach((item, index) => {
+                // Menghitung delay berdasarkan urutan item, memperpanjang delay menjadi 0.2 detik per item
+                const delay = (index + 1) * 0.3; // Menambahkan delay lebih besar (0.2 detik per item)
+                item.style.animationDelay = `${delay}s`; // Set delay dinamis
+                observer.observe(item);
+            });
+        });
+    </script>
     <script>
         document.addEventListener("alpine:init", () => {
             Alpine.data("detail", () => ({

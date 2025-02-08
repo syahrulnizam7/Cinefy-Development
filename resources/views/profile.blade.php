@@ -49,7 +49,7 @@
                 <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}" class="object-cover w-full h-full">
             </div>
             <h2 class="text-2xl font-bold text-white mt-4">{{ $user->name }}</h2>
-            <p class="text-sm text-gray-200">@{{ $user->username }}</p>
+            <p class="text-sm text-gray-200"><span>@</span>{{ $user->username }}</p>
             <div class="mt-4 flex justify-around text-white">
                 <div class="text-center">
                     <p class="text-lg font-bold">{{ $watchedCount }}</p>

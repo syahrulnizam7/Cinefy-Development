@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Models\User;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use App\Http\Controllers\CastController;
 use App\Http\Controllers\WatchedController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\WatchlistController;
@@ -16,36 +17,6 @@ use App\Http\Controllers\ExploreController;
 Route::get('login/google', [App\Http\Controllers\Auth\LoginController::class, 'redirectToGoogle']);
 Route::get('login/google/callback', [App\Http\Controllers\Auth\LoginController::class, 'handleGoogleCallback']);
 
-// // Proses login dengan Google callback
-// Route::get('login/google/callback', function () {
-//     $googleUser = Socialite::driver('google')->user();
-
-//     // Cek apakah pengguna sudah terdaftar berdasarkan email
-//     $existingUser = User::where('email', $googleUser->getEmail())->first();
-
-//     if ($existingUser) {
-//         // Jika pengguna sudah ada tetapi belum memiliki google_id, update
-//         if (!$existingUser->google_id) {
-//             $existingUser->update(['google_id' => $googleUser->getId()]);
-//         }
-//         Auth::login($existingUser);
-//         return redirect()->route('profile'); // Jika sudah ada, langsung ke profile
-//     }
-
-//     // Jika pengguna baru, buat akun dengan google_id
-//     $newUser = User::create([
-//         'name' => $googleUser->getName(),
-//         'email' => $googleUser->getEmail(),
-//         'password' => bcrypt(Str::random(16)), // Password acak
-//         'profile_photo' => null,
-//         'username' => null,
-//         'google_id' => $googleUser->getId(), // Tambahkan google_id
-//     ]);
-    
-//     Auth::login($newUser);
-    
-//     return redirect()->route('welcome'); // Redirect untuk melengkapi profil
-// })->name('google.callback');
 
 Route::get('/welcome', function () {
     return view('welcome');
@@ -53,6 +24,9 @@ Route::get('/welcome', function () {
 
 
 Route::get('/explore', [ExploreController::class, 'index'])->name('explore.index');
+
+
+Route::get('/cast/{id}', [CastController::class, 'show'])->name('cast.show');
 
 Route::get('login', function () {
     return view('login'); // Ganti dengan nama blade login yang sesuai
@@ -92,37 +66,62 @@ Route::get('/welcome', function () {
 // Route untuk menyimpan data profil
 Route::post('/welcome/save', [ProfileController::class, 'saveProfile'])->name('welcome.save')->middleware('auth');
 
-
-
 Route::get('/api/search', function () {
     $query = request('q');
     if (!$query) return response()->json(['results' => []]);
 
     $apiKey = config('services.tmdb.api_key');
+    $baseUrl = config('services.tmdb.base_url');
 
-    $response = Http::get(config('services.tmdb.base_url') . 'search/multi', [
+    // Fetch movie results
+    $movieResponse = Http::get("{$baseUrl}search/movie", [
         'api_key' => $apiKey,
         'language' => 'id-ID',
         'query' => $query,
     ]);
 
-    $results = collect($response->json()['results'] ?? [])
-        ->filter(fn($item) => isset($item['title']) || isset($item['name']))
-        ->map(fn($item) => [
-            'id' => $item['id'],
-            'title' => $item['title'] ?? $item['name'],
-            'release_date' => $item['release_date'] ?? $item['first_air_date'] ?? '',
-            'type' => $item['media_type'],
-            // Pastikan gambar hanya ditambahkan satu kali
-            'poster_path' => isset($item['poster_path']) && !empty($item['poster_path'])
-                ? 'https://image.tmdb.org/t/p/w92' . $item['poster_path']
-                : asset('images/noimg.png'),
-            'average_rating' => $item['vote_average'] ?? 'N/A',
-        ])
-        ->values();
+    // Fetch TV series results
+    $tvResponse = Http::get("{$baseUrl}search/tv", [
+        'api_key' => $apiKey,
+        'language' => 'id-ID',
+        'query' => $query,
+    ]);
+
+    // URL default untuk gambar jika tidak ada poster
+    $defaultPoster = asset('images/noimg.png');
+
+
+    $movies = collect($movieResponse->json()['results'] ?? [])->map(fn($item) => [
+        'id' => $item['id'],
+        'title' => $item['title'],
+        'release_date' => $item['release_date'] ?? '',
+        'type' => 'movie',
+        'poster_path' => !empty($item['poster_path'])
+            ? "https://image.tmdb.org/t/p/w92{$item['poster_path']}"
+            : url('images/noimg.png'), // Pastikan URL absolut tanpa asset()
+
+        'average_rating' => $item['vote_average'] ?? 'N/A',
+    ]);
+
+    $tvShows = collect($tvResponse->json()['results'] ?? [])->map(fn($item) => [
+        'id' => $item['id'],
+        'title' => $item['name'],
+        'release_date' => $item['first_air_date'] ?? '',
+        'type' => 'tv',
+        'poster_path' => !empty($item['poster_path'])
+            ? "https://image.tmdb.org/t/p/w92{$item['poster_path']}"
+            : url('images/noimg.png'), // Pastikan URL absolut tanpa asset()
+
+        'average_rating' => $item['vote_average'] ?? 'N/A',
+    ]);
+
+    // Gabungkan hasil film dan TV series
+    $results = $movies->merge($tvShows)->values();
 
     return response()->json(['results' => $results]);
 });
+
+
 
 
 Route::get('/', function () {

@@ -7,23 +7,10 @@
 
     <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
     @vite('resources/css/app.css')
 
-    {{-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    <style>
-        .scrollbar-hidden {
-            -ms-overflow-style: none;
-            /* Untuk Internet Explorer 10+ */
-            scrollbar-width: none;
-            /* Untuk Firefox */
-        }
-
-        .scrollbar-hidden::-webkit-scrollbar {
-            display: none;
-            /* Untuk Chrome, Safari, dan Edge */
-        }
-    </style> --}}
 
 </head>
 
