@@ -15,7 +15,7 @@
             <!-- Konten Utama -->
             <div
                 class="relative w-full mx-auto px-4 py-20 lg:py-32 lg:px-20 flex flex-col lg:flex-row gap-6 md:gap-10 min-h-screen">
-                <div class="w-full lg:w-1/3 flex flex-col items-center relative">
+                <div class="w-full lg:w-1/3 flex flex-col justify-between items-center relative h-full">
                     <!-- Profile Picture -->
                     <div class="relative w-full max-w-[220px] md:max-w-[250px] lg:max-w-none h-auto">
                         <div class="relative rounded-lg shadow-lg overflow-hidden">
@@ -79,9 +79,10 @@
                                 <div class="flex-none w-36 sm:w-40">
                                     <a
                                         href="{{ route('detail', ['type' => $credit['media_type'], 'id' => $credit['id']]) }}">
-                                        <img src="{{ $credit['poster_path'] ? 'https://image.tmdb.org/t/p/w500' . $credit['poster_path'] : '/images/default-poster.jpg' }}"
-                                            alt="{{ $credit['title'] ?? $credit['name'] }}"
-                                            class="w-full h-52 object-cover rounded-lg shadow-md hover:shadow-xl transition">
+                                        <img src="{{ $credit['poster_path'] ? 'https://image.tmdb.org/t/p/w500' . $credit['poster_path'] : asset('images/noimg.png') }}"
+    alt="{{ $credit['title'] ?? $credit['name'] }}"
+    class="w-full h-52 object-cover rounded-lg shadow-md hover:shadow-xl transition">
+
                                         <p class="text-sm mt-2 text-center">{{ $credit['title'] ?? $credit['name'] }}</p>
                                     </a>
                                 </div>

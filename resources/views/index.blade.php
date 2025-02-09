@@ -2,11 +2,12 @@
 
 <!-- Lingkaran Blur dengan Glow gerak -->
 <div
-    class="fixed top-40 -left-52 md:top-52 lg:top-80 lg:-left-40 w-[400px] h-[400px] bg-green-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-green-500/50 -z-10 animate-moveCircle1">
+    class="fixed top-40 -left-52 md:top-52 lg:top-80 lg:-left-40 w-72 h-72 md:w-[400px] md:h-[400px] bg-green-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-green-500/50 -z-10 animate-moveCircle1">
 </div>
 <div
-    class="fixed -top-44 -right-56 lg:-top-64 lg:-right-52 w-[420px] h-[420px] bg-pink-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-pink-500/50 -z-10 animate-moveCircle2">
+    class="fixed -top-32 -right-40 md:-top-44 md:-right-56 w-72 h-72 md:w-[420px] md:h-[420px] bg-pink-400 rounded-full blur-3xl opacity-50 shadow-lg shadow-pink-500/50 -z-10 animate-moveCircle2">
 </div>
+
 
 @section('content')
 
@@ -14,57 +15,45 @@
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 
     <!-- Hero Section -->
-    <section class="relative  text-white  lg:mt-20 lg:-mb-12 ">
-        <div class="relative flex flex-col lg:grid lg:grid-cols-2 gap-12 items-center w-full">
-
+    <section class="relative text-white lg:pt-20 ">
+        <div class="relative flex flex-col lg:grid lg:grid-cols-2 gap-8 md:gap-12 items-center w-full md:px-6 ">
             <!-- Bagian Kiri (Text) - Muncul hanya di Desktop -->
-            <div class="hidden lg:block px-6 lg:px-15  z-20">
-                <h1 class="text-4xl md:text-6xl font-bold leading-tight">
-                    Track Your Favorite
-                    <span class="text-blue-500" id="typing-text"></span>
+            <div class="hidden lg:block z-20">
+                <h1 class="text-3xl md:text-5xl font-bold leading-tight">
+                    Track Your Favorite <br><span class="text-blue-500" id="typing-text"></span></br>
                 </h1>
-                <p class="text-lg mt-6 opacity-80">
+                <p class="text-lg mt-4 md:mt-6 opacity-80">
                     Manage your watched content, discover new shows, and add to your collection seamlessly.
                 </p>
-                <div class="mt-8 flex gap-4">
+                <div class="mt-6 flex gap-3">
                     <a href="#"
-                        class="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">
-                        Start Watching
-                    </a>
+                        class="bg-blue-600 text-white px-5 py-2.5 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">Start
+                        Watching</a>
                     <a href="{{ route('explore.index') }}"
-                        class="border border-blue-600 text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">
-                        Explore Now
-                    </a>
-
+                        class="border border-blue-600 text-blue-600 px-5 py-2.5 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">Explore
+                        Now</a>
                 </div>
             </div>
 
             <!-- Bagian Kanan (Gambar) - Muncul dulu di Mobile -->
-            <div class="w-full h-full  relative flex justify-center">
-
+            <div class="w-full h-full relative flex justify-center">
                 <img src="{{ asset('images/hero.png') }}" alt="Hero Image"
-                    class="w-full h-auto sm:h-[90vh] lg:h-[80vh] object-contain opacity-70 z-0 ">
+                    class="w-full max-w-md sm:max-w-lg md:max-w-xl h-auto object-contain opacity-70 z-0">
 
                 <!-- Overlay yang menutupi seluruh layar -->
-                <div
-                    class="absolute inset-0 w-full h-full flex flex-col justify-center text-center p-6 
-           bg-[linear-gradient(to_bottom,rgba(0,0,0,0.8)_0%,rgba(0,0,0,0.7)_70%,rgba(0,0,0,0.4)_85%,rgba(0,0,0,0)_95%)] lg:hidden">
-                    <h1 class="text-3xl font-bold mt-28 z-20">
-                        Track Your Favorite
-                        <span class="text-blue-500" id="typing-text-mobile"></span>
+                <div class="absolute h-full top-0 left-0 w-full  flex flex-col justify-center items-center text-center p-4 bg-gradient-to-b from-black/80 via-black/70 to-transparent lg:hidden">
+                    <h1 class="text-2xl sm:text-3xl font-bold mt-20">
+                        Track Your Favorite <span class="text-blue-500" id="typing-text-mobile"></span>
                     </h1>
-                    <p class="text-base mt-4 opacity-80 z-20">
-                        Manage your watched content, discover new shows, and add to your collection seamlessly.
-                    </p>
-                    <div class="mt-6 flex gap-4 justify-center z-20">
+                    <p class="text-sm sm:text-base mt-2 sm:mt-4 opacity-80">Manage your watched content, discover new shows,
+                        and add to your collection seamlessly.</p>
+                    <div class="mt-4 sm:mt-6 flex gap-3 justify-center">
                         <a href="#"
-                            class="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">
-                            Start Watching
-                        </a>
-                        <a href="#"
-                            class="z-20 border border-blue-600 text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">
-                            Explore Now
-                        </a>
+                            class="bg-blue-600 text-white px-5 py-2.5 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">Start
+                            Watching</a>
+                        <a href="{{ route('explore.index') }}"
+                            class="border border-blue-600 text-blue-600 px-5 py-2.5 rounded-full font-semibold hover:bg-blue-600 hover:text-white transition">Explore
+                            Now</a>
                     </div>
                 </div>
 
@@ -90,29 +79,26 @@
 
 
 
-    {{-- Trending Section --}}
-    <section class="w-full  mx-auto px-6 py-1 text-white relative z-20">
-        <h2 class="text-2xl lg:text-3xl font-bold mb-6 ">Trending</h2>
-        <div class="overflow-x-auto overflow-y-hidden scrollbar-hidden pt-4 pb-4 h-[335px]">
-            <div class="flex space-x-4 h-auto">
+    <!-- Trending Section -->
+    <section class="w-full px-4 py-6 md:px-6 text-white relative z-20">
+        <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Trending</h2>
+        <div class="overflow-x-auto whitespace-nowrap scrollbar-hidden pb-2">
+            <div class="flex space-x-3">
                 @foreach ($trending as $item)
                     <a href="{{ route('detail', ['type' => $item['media_type'], 'id' => $item['id']]) }}"
-                        class="bg-gray-800 rounded-lg shadow-lg w-40 flex-shrink-0 transform transition-all duration-300 hover:cursor-pointer hover:scale-105 hover:shadow-2xl hover:bg-gray-700 hover:overflow-visible">
+                        class="bg-gray-800 rounded-lg shadow-lg w-36 sm:w-40 flex-shrink-0 hover:scale-105 transition-transform">
                         <img src="https://image.tmdb.org/t/p/w500{{ $item['poster_path'] }}"
-                            alt="{{ $item['title'] ?? $item['name'] }}"
-                            class="w-full h-52 object-cover object-top transition-all duration-300 transform group-hover:scale-110">
+                            alt="{{ $item['title'] ?? $item['name'] }}" class="w-full h-48 object-cover rounded-t-lg">
                         <div class="p-2">
                             <h3 class="text-sm font-semibold">{{ $item['title'] ?? $item['name'] }}</h3>
                             <p class="text-xs opacity-75">
-                                {{ isset($item['release_date']) ? \Carbon\Carbon::parse($item['release_date'])->translatedFormat('d M Y') : (isset($item['first_air_date']) ? \Carbon\Carbon::parse($item['first_air_date'])->translatedFormat('d M Y') : '-') }}
+                                {{ isset($item['release_date']) ? \Carbon\Carbon::parse($item['release_date'])->translatedFormat('d M Y') : '-' }}
                             </p>
-                            <p class="mt-1 -mb-1 text-xs bg-blue-500 px-2 py-1 inline-block rounded">
-                                {{ $item['vote_average'] * 10 }}%
-                            </p>
+                            <p class="mt-1 text-xs bg-blue-500 px-2 py-1 inline-block rounded">
+                                {{ $item['vote_average'] * 10 }}%</p>
                         </div>
                     </a>
                 @endforeach
-
             </div>
         </div>
     </section>

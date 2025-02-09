@@ -75,7 +75,8 @@
                     @endforeach
                 </div>
 
-                <p class="mt-4 text-gray-300">{{ Str::limit($detail['overview'], 200, '...') }}</p>
+                <p class="mt-4 text-gray-300">{{ \Illuminate\Support\Str::limit($detail['overview'], 200, '...') }}</p>
+
 
                 <div class="mt-6 flex space-x-4">
                     <!-- Watched Button -->
@@ -201,7 +202,7 @@
                                 </a>
                                 <button @click="showLoginModal = false"
                                     class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
-                                    Nanti Saja
+                                    Later
                                 </button>
                             </div>
                         </div>

@@ -12,17 +12,37 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    
+
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
-        'name', 'email', 'password', 'username', 'profile_photo', 'google_id',
+        'name',
+        'email',
+        'password',
+        'username',
+        'profile_photo',
+        'google_id',
     ];
-    
-    
+
+    // User.php
+    public function watchedMovies()
+    {
+        return $this->hasMany(Watched::class);
+    }
+    public function watchlistMovies()
+    {
+        return $this->hasMany(Watchlist::class);
+    }
+    public function favoriteMovies()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -46,6 +66,4 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-
-    
 }

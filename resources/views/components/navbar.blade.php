@@ -30,7 +30,7 @@
                         }));
                 })
                 .catch(error => console.error('Error fetching data:', error));
-        }
+        },
     
     }">
 
@@ -47,9 +47,11 @@
                 <div x-data="{ open: false }" class="relative">
                     <button @click="open = !open" class="text-white font-semibold flex items-center gap-2">
                         <!-- Profile Photo -->
-                        <img src="{{ Auth::user()->profile_photo ? asset('storage/' . Auth::user()->profile_photo) : asset('images/default-avatar.png') }}"
+                        <img src="{{ auth()->user()->profile_photo ? asset('storage/' . auth()->user()->profile_photo) : asset('images/default-avatar.png') }}"
                             alt="Profile" class="w-10 h-10 rounded-full object-cover border-2 border-white">
-                        <span>{{ Auth::user()->name }}</span>
+
+                        <span>{{ auth()->user()->name }}</span>
+
                     </button>
                     <!-- Dropdown Menu -->
                     <div x-show="open" @click.outside="open = false"
@@ -83,15 +85,22 @@
 
         <div class="hidden lg:block order-2">
             <ul class="flex gap-16">
-                <li class="text-white font-bold text-sm hover:text-blue-600"><a href="/">Home</a></li>
+                <li
+                    class="{{ request()->is('/') ? 'text-blue-500 font-bold' : 'text-white hover:text-blue-600 font-semibold' }}">
+                    <a href="/">Home</a>
+                </li>
                 <li>
                     <a href="javascript:void(0);" @click="searchOpen = true"
-                        class="text-white font-bold text-sm hover:text-blue-600">Search</a>
+                        class="text-white font-semibold text-base hover:text-blue-600">Search</a>
                 </li>
-
-
-                <li class="text-white font-bold text-sm hover:text-blue-600"><a href="/explore">Explore</a></li>
-                <li class="text-white font-bold text-sm hover:text-blue-600"><a href="">Activity</a></li>
+                <li
+                    class="{{ request()->is('explore') ? 'text-blue-500 font-bold' : 'text-white hover:text-blue-600 font-semibold' }}">
+                    <a href="/explore">Explore</a>
+                </li>
+                <li
+                    class="{{ request()->is('posts') ? 'text-blue-500 font-bold' : 'text-white hover:text-blue-600 font-semibold' }}">
+                    <a href="/posts">Posts</a>
+                </li>
             </ul>
         </div>
     </div>
@@ -145,68 +154,80 @@
         </div>
     </div>
 
-    {{-- Navbar bottom --}}
-    <div x-show="navOpen" class="fixed scale-75 rounded-full z-20 bottom-1 right-1 left-1 p-4 lg:hidden bg-blue-600 "
+    <!-- Navbar Bottom -->
+    <div x-show="navOpen"
+        class="lg:hidden fixed bottom-5 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md rounded-full bg-blue-500 backdrop-blur-lg shadow-xl border border-white/20 z-50 p-3 flex justify-around items-center "
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-10"
         x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-300"
         x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-10">
-        <ul class="flex justify-between">
-            <li class="group">
-                <a href="/" class="text-white flex flex-col items-center gap-1 group-hover:text-blue-500">
-                    <ion-icon name="home" class="text-2xl group-hover:text-blue-500"></ion-icon>
-                    <span class="text-white text-base font-bold group-hover:text-blue-500">Home</span>
-                </a>
-            </li>
-            <li class="group">
-                <button @click="searchOpen = true" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
-                    <ion-icon name="search"
-                        class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
-                    <span
-                        class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">Search</span>
-                </button>
-            </li>
 
-            <li class="group">
-                <a href="/explore" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
-                    <ion-icon name="compass"
-                        class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
-                    <span
-                        class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">Explore</span>
-                </a>
-            </li>
-            <li class="group">
-                <a href="" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
-                    <ion-icon name="hourglass"
-                        class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
-                    <span
-                        class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">Activity</span>
-                </a>
-            </li>
-            <li class="group">
-                @auth
-                    <a href="{{ route('profile') }}" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
-                        <ion-icon name="person"
-                            class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
-                        <span
-                            class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">
-                            Profile
-                        </span>
-                    </a>
-                @else
-                    <button @click="modalOpen = true" class="flex flex-col items-center gap-1 group-hover:text-blue-500">
+        <!-- Indikator Aktif -->
+        <div class="absolute bottom-[0.5px] h-1 w-10 bg-white rounded-full transition-all duration-300"
+            :style="{
+                left: (window.location.pathname === '/' ? 'calc(15% - 20px)' :
+                    window.location.pathname === '/explore' ? 'calc(39% - 20px)' :
+                    window.location.pathname === '/posts' ? 'calc(62% - 20px)' :
+                    'calc(85% - 20px)')
+            }">
+        </div>
 
-                        <ion-icon name="apps"
-                            class="text-2xl text-white opacity-100 group-hover:text-blue-500 group-hover:opacity-100"></ion-icon>
-                        <span
-                            class="text-white opacity-100 text-base font-normal group-hover:text-blue-500 group-hover:opacity-100">
-                            More
-                        </span>
-                    </button>
-                @endauth
-            </li>
+        <!-- Home -->
+        <a href="/" class="flex flex-col items-center gap-1 group relative">
+            <ion-icon name="home"
+                :class="window.location.pathname === '/' ? 'text-white scale-110' :
+                    'text-white/70 group-hover:text-white transition-all'"
+                class="text-2xl transition-all duration-300"></ion-icon>
+            <span
+                :class="window.location.pathname === '/' ? 'text-white font-bold' :
+                    'text-white/70 group-hover:text-white'"
+                class="text-xs transition-all">Home</span>
+        </a>
 
-        </ul>
+        <!-- Explore -->
+        <a href="/explore" class="flex flex-col items-center gap-1 group relative">
+            <ion-icon name="compass"
+                :class="window.location.pathname === '/explore' ? 'text-white scale-110' :
+                    'text-white/70 group-hover:text-white transition-all'"
+                class="text-2xl transition-all duration-300"></ion-icon>
+            <span
+                :class="window.location.pathname === '/explore' ? 'text-white font-bold' :
+                    'text-white/70 group-hover:text-white'"
+                class="text-xs transition-all">Explore</span>
+        </a>
+
+        <!-- Tombol Tengah Search -->
+        <button @click="searchOpen = true"
+            class="absolute -top-6 bg-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg border-4 border-blue-500 text-blue-500 transition-all hover:bg-blue-700 hover:text-white hover:border-blue-700">
+            <ion-icon name="search" class="text-3xl"></ion-icon>
+        </button>
+
+
+        <!-- Posts -->
+        <a href="/posts" class="flex flex-col items-center gap-1 group relative">
+            <ion-icon name="hourglass"
+                :class="window.location.pathname === '/posts' ? 'text-white scale-110' :
+                    'text-white/70 group-hover:text-white transition-all'"
+                class="text-2xl transition-all duration-300"></ion-icon>
+            <span
+                :class="window.location.pathname === '/posts' ? 'text-white font-bold' :
+                    'text-white/70 group-hover:text-white'"
+                class="text-xs transition-all">Posts</span>
+        </a>
+
+        <!-- Profile -->
+        <a href="/profile" class="flex flex-col items-center gap-1 group relative">
+            <ion-icon name="person"
+                :class="window.location.pathname === '/profile' ? 'text-white scale-110' :
+                    'text-white/70 group-hover:text-white transition-all'"
+                class="text-2xl transition-all duration-300"></ion-icon>
+            <span
+                :class="window.location.pathname === '/profile' ? 'text-white font-bold' :
+                    'text-white/70 group-hover:text-white'"
+                class="text-xs transition-all">Profile</span>
+        </a>
     </div>
+
+
     <!-- Modal More (Login & Sign Up) -->
     <div x-show="modalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50"
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
