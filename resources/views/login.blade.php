@@ -80,8 +80,11 @@
                 <button type="submit" class="w-full mt-4 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Sign
                     in</button>
             </form>
-            <p class="mt-4 text-sm text-center text-gray-300">Don’t have an account? <a href="#"
-                    class="text-blue-400 hover:underline">Sign Up</a></p>
+            <p class="mt-4 text-sm text-center text-gray-300">
+                Don’t have an account? <a href="{{ route('register') }}" class="text-blue-400 hover:underline">Sign
+                    Up</a>
+            </p>
+
             <!-- Tombol Login dengan Google -->
             <a href="{{ url('login/google') }}"
                 class="w-full mt-4 bg-red-600 text-white py-2 rounded-md flex items-center justify-center gap-3 hover:bg-red-700">

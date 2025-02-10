@@ -41,7 +41,8 @@
                     class="w-full max-w-md sm:max-w-lg md:max-w-xl h-auto object-contain opacity-70 z-0">
 
                 <!-- Overlay yang menutupi seluruh layar -->
-                <div class="absolute h-full top-0 left-0 w-full  flex flex-col justify-center items-center text-center p-4 bg-gradient-to-b from-black/80 via-black/70 to-transparent lg:hidden">
+                <div
+                    class="absolute h-full top-0 left-0 w-full  flex flex-col justify-center items-center text-center p-4 bg-gradient-to-b from-black/80 via-black/70 to-transparent lg:hidden">
                     <h1 class="text-2xl sm:text-3xl font-bold mt-20">
                         Track Your Favorite <span class="text-blue-500" id="typing-text-mobile"></span>
                     </h1>
@@ -82,20 +83,28 @@
     <!-- Trending Section -->
     <section class="w-full px-4 py-6 md:px-6 text-white relative z-20">
         <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Trending</h2>
-        <div class="overflow-x-auto whitespace-nowrap scrollbar-hidden pb-2">
-            <div class="flex space-x-3">
+        <div class="relative overflow-x-scroll scrollbar-hidden pb-6">
+            <div class="flex space-x-6 overflow-visible">
                 @foreach ($trending as $item)
                     <a href="{{ route('detail', ['type' => $item['media_type'], 'id' => $item['id']]) }}"
-                        class="bg-gray-800 rounded-lg shadow-lg w-36 sm:w-40 flex-shrink-0 hover:scale-105 transition-transform">
-                        <img src="https://image.tmdb.org/t/p/w500{{ $item['poster_path'] }}"
-                            alt="{{ $item['title'] ?? $item['name'] }}" class="w-full h-48 object-cover rounded-t-lg">
-                        <div class="p-2">
-                            <h3 class="text-sm font-semibold">{{ $item['title'] ?? $item['name'] }}</h3>
-                            <p class="text-xs opacity-75">
+                        class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group">
+                        <div class="relative w-full h-52 lg:h-72 overflow-hidden rounded-xl">
+                            <img src="https://image.tmdb.org/t/p/w500{{ $item['poster_path'] }}"
+                                alt="{{ $item['title'] ?? $item['name'] }}"
+                                class="w-full h-full object-cover rounded-xl transform transition-transform duration-300 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                        </div>
+                        <div class="absolute bottom-4 left-4 right-4 text-white">
+                            <h3 class="text-lg font-extrabold">{{ $item['title'] ?? $item['name'] }}</h3>
+                            <p class="text-sm opacity-80">
                                 {{ isset($item['release_date']) ? \Carbon\Carbon::parse($item['release_date'])->translatedFormat('d M Y') : '-' }}
                             </p>
-                            <p class="mt-1 text-xs bg-blue-500 px-2 py-1 inline-block rounded">
-                                {{ $item['vote_average'] * 10 }}%</p>
+                            <div class="mt-2 flex items-center space-x-2">
+                                <span
+                                    class="text-sm font-semibold bg-yellow-500 px-3 py-1 rounded-full text-black shadow-md">
+                                    ⭐ {{ number_format($item['vote_average'], 1) }}
+                                </span>
+                            </div>
                         </div>
                     </a>
                 @endforeach

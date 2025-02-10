@@ -43,4 +43,21 @@ class PostController extends Controller
 
         return back()->with('success', 'Post berhasil dibuat!');
     }
+
+    public function destroy(Post $post)
+    {
+        if ($post->user_id !== Auth::id()) {
+            return back()->with('error', 'Kamu tidak memiliki izin untuk menghapus postingan ini.');
+        }
+
+        // Hapus gambar terkait jika ada
+        foreach ($post->images as $image) {
+            Storage::disk('public')->delete($image->image_path);
+            $image->delete();
+        }
+
+        $post->delete();
+
+        return back()->with('success', 'Post berhasil dihapus.');
+    }
 }

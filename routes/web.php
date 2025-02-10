@@ -19,6 +19,10 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use App\Http\Middleware\EnsureProfileComplete;
+use App\Http\Controllers\Auth\RegisterController;
+
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'register']);
 
 Route::get('login/google', [App\Http\Controllers\Auth\LoginController::class, 'redirectToGoogle']);
 Route::get('login/google/callback', [App\Http\Controllers\Auth\LoginController::class, 'handleGoogleCallback']);
@@ -26,83 +30,82 @@ Route::get('login/google/callback', [App\Http\Controllers\Auth\LoginController::
 
 // Middleware untuk memastikan user mengisi profilnya sebelum bisa mengakses halaman utama
 Route::middleware(['auth', 'profile.complete'])->group(function () {
-    
 
     // Semua route yang membutuhkan profil lengkap
-
     Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
 
     Route::get('/user/{id}', [UserController::class, 'show'])->name('user.detail');
 
-
-    Route::get('/cast/{id}', [CastController::class, 'show'])->name('cast.show');
-
-
-    Route::get('/detail/{type}/{id}', function ($type, $id) {
-        $apiKey = config('services.tmdb.api_key');
-
-        if (!in_array($type, ['movie', 'tv'])) {
-            abort(404);
-        }
-
-        // Ambil detail utama
-        $detailResponse = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}", [
-            'api_key' => $apiKey,
-            'language' => 'id-ID',
-        ]);
-
-        if ($detailResponse->failed()) {
-            // Menangani jika ada kesalahan API
-            abort(500, 'Terjadi kesalahan dalam mengambil data detail.');
-        }
-
-        $detail = $detailResponse->json();
-
-
-
-        // Jika tagline atau overview kosong, coba ambil dari bahasa Inggris
-        if (empty($detail['tagline']) || empty($detail['overview'])) {
-            $detailResponseEn = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}", [
-                'api_key' => $apiKey,
-                'language' => 'en-US',
-            ]);
-            $detailEn = $detailResponseEn->json();
-
-            $detail['tagline'] = $detail['tagline'] ?: $detailEn['tagline'];
-            $detail['overview'] = $detail['overview'] ?: $detailEn['overview'];
-        }
-
-        // Ambil informasi pemeran utama dan kru
-        $creditsResponse = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}/credits", [
-            'api_key' => $apiKey,
-        ]);
-        $credits = $creditsResponse->json();
-
-        // Ambil hanya 10 pemeran utama
-        $cast = array_slice($credits['cast'], 0, 10);
-
-        // Ambil sutradara & penulis dari crew
-        $director = collect($credits['crew'])->firstWhere('job', 'Director');
-        $writers = collect($credits['crew'])->whereIn('job', ['Writer', 'Screenplay'])->pluck('name')->toArray();
-
-        // Ambil trailer video
-        $videosResponse = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}/videos", [
-            'api_key' => $apiKey,
-        ]);
-        $videos = $videosResponse->json();
-
-        // Ambil trailer key (jika ada)
-        $trailerKey = null;
-        if (isset($videos['results']) && count($videos['results']) > 0) {
-            $trailer = collect($videos['results'])->firstWhere('type', 'Trailer');
-            if ($trailer) {
-                $trailerKey = $trailer['key'];
-            }
-        }
-
-        return view('detail', compact('detail', 'cast', 'director', 'writers', 'trailerKey', 'type'));
-    })->name('detail');
 });
+
+
+Route::get('/cast/{id}', [CastController::class, 'show'])->name('cast.show');
+
+
+Route::get('/detail/{type}/{id}', function ($type, $id) {
+    $apiKey = config('services.tmdb.api_key');
+
+    if (!in_array($type, ['movie', 'tv'])) {
+        abort(404);
+    }
+
+    // Ambil detail utama
+    $detailResponse = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}", [
+        'api_key' => $apiKey,
+        'language' => 'id-ID',
+    ]);
+
+    if ($detailResponse->failed()) {
+        // Menangani jika ada kesalahan API
+        abort(500, 'Terjadi kesalahan dalam mengambil data detail.');
+    }
+
+    $detail = $detailResponse->json();
+
+
+
+    // Jika tagline atau overview kosong, coba ambil dari bahasa Inggris
+    if (empty($detail['tagline']) || empty($detail['overview'])) {
+        $detailResponseEn = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}", [
+            'api_key' => $apiKey,
+            'language' => 'en-US',
+        ]);
+        $detailEn = $detailResponseEn->json();
+
+        $detail['tagline'] = $detail['tagline'] ?: $detailEn['tagline'];
+        $detail['overview'] = $detail['overview'] ?: $detailEn['overview'];
+    }
+
+    // Ambil informasi pemeran utama dan kru
+    $creditsResponse = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}/credits", [
+        'api_key' => $apiKey,
+    ]);
+    $credits = $creditsResponse->json();
+
+    // Ambil hanya 10 pemeran utama
+    $cast = array_slice($credits['cast'], 0, 10);
+
+    // Ambil sutradara & penulis dari crew
+    $director = collect($credits['crew'])->firstWhere('job', 'Director');
+    $writers = collect($credits['crew'])->whereIn('job', ['Writer', 'Screenplay'])->pluck('name')->toArray();
+
+    // Ambil trailer video
+    $videosResponse = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}/videos", [
+        'api_key' => $apiKey,
+    ]);
+    $videos = $videosResponse->json();
+
+    // Ambil trailer key (jika ada)
+    $trailerKey = null;
+    if (isset($videos['results']) && count($videos['results']) > 0) {
+        $trailer = collect($videos['results'])->firstWhere('type', 'Trailer');
+        if ($trailer) {
+            $trailerKey = $trailer['key'];
+        }
+    }
+
+    return view('detail', compact('detail', 'cast', 'director', 'writers', 'trailerKey', 'type'));
+})->name('detail');
 
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 
@@ -155,7 +158,10 @@ Route::get('/check-username', function (Request $request) {
     $exists = \App\Models\User::where('username', $request->username)->exists();
     return response()->json(['exists' => $exists]);
 });
-
+Route::post('/check-email', function (Request $request) {
+    $exists = User::where('email', $request->email)->exists();
+    return response()->json(['exists' => $exists]);
+})->name('check.email');
 
 Route::get('login', function () {
     return view('login'); // Ganti dengan nama blade login yang sesuai
@@ -175,6 +181,8 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/favorite', [FavoriteController::class, 'destroy'])->name('favorite.destroy');
 
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy')->middleware('auth');
+
 
     Route::get('/profile/edit', [ProfileController::class, 'editProfile'])->name('profile.edit');
     Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');

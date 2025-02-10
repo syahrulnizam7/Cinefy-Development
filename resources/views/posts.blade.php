@@ -1,25 +1,68 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-2xl mx-auto p-4">
-        <h2 class="text-xl font-bold mb-4">Posts</h2>
+    <div class="max-w-3xl mx-auto p-6 mt-10">
+
+        <div x-data="{ showNotification: false, message: '' }" x-show="showNotification" x-transition.duration.500ms
+            class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+            <p x-text="message"></p>
+        </div>
+
 
         <!-- List Posts -->
         <div class="space-y-8">
             @foreach ($posts as $post)
-                <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <div x-data="{ openDropdown: false }" class="border-b border-gray-700 p-6  shadow-md ">
+
                     <!-- User Info -->
-                    <div class="flex items-center space-x-4 mb-4">
-                        <a href="{{ route('user.detail', $post->user->id) }}">
-                            <img src="{{ $post->user->profile_photo ? asset('storage/' . $post->user->profile_photo) : asset('default-avatar.png') }}"
-                                alt="Avatar" class="w-12 h-12 rounded-full border-2 border-blue-500 object-cover">
-                        </a>
-                        <div>
-                            <a href="{{ route('user.detail', $post->user->id) }}"
-                                class="font-bold text-lg hover:text-blue-400">{{ $post->user->name }}</a>
-                            <p class="text-sm text-gray-400">{{ $post->created_at->diffForHumans() }}</p>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <a href="{{ route('user.detail', $post->user->id) }}">
+                                <img src="{{ $post->user->profile_photo ? asset('storage/' . $post->user->profile_photo) : asset('default-avatar.png') }}"
+                                    alt="Avatar" class="w-12 h-12 rounded-full border-2 border-blue-500 object-cover">
+                            </a>
+                            <div>
+                                <a href="{{ route('user.detail', $post->user->id) }}"
+                                    class="font-bold text-white text-lg hover:text-blue-400">{{ $post->user->name }}</a>
+                                <p class="text-sm text-gray-400">{{ $post->created_at->diffForHumans() }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Menu Titik Tiga -->
+                        <div class="relative ml-auto">
+                            <button @click="openDropdown = !openDropdown"
+                                class="text-gray-400 hover:text-white focus:outline-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="3.5" stroke="currentColor" class="w-6 h-6 ">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6.75 12h.008m5.992 0h.008m5.992 0h.008M6.75 12h.008m5.992 0h.008m5.992 0h.008" />
+                                </svg>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div x-show="openDropdown" @click.away="openDropdown = false"
+                                class="absolute right-0 mt-2 w-40 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50">
+                                <a href="{{ route('user.detail', $post->user->id) }}"
+                                    class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">
+                                    About This User
+                                </a>
+
+                                @if (auth()->id() === $post->user_id)
+                                    <form action="{{ route('posts.destroy', $post->id) }}" method="POST" class="block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700">
+                                            Delete Post
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </div>
                     </div>
+
+
+
 
                     <!-- Post Content -->
                     <div class="mt-2 text-gray-300">
@@ -106,34 +149,58 @@
         </div>
     </div>
 
-    <!-- Floating Add Button -->
-    <button onclick="toggleModal()"
-        class="fixed bottom-6 right-6 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-            class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-    </button>
+    <div x-data="{ showMoreModal: false, showPostModal: false }">
+        <!-- Floating Button -->
+        <button @click="
+            @guest showMoreModal = true; @else showPostModal = true; @endguest"
+            class="fixed bottom-6 right-6 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+        </button>
 
-    <!-- Modal for Adding Post -->
-    <div id="post-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-        <div class="bg-white p-6 rounded-lg w-96 shadow-lg">
-            <h3 class="text-lg font-bold mb-4">Buat Postingan Baru</h3>
-            <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <textarea name="content" rows="3" class="w-full p-2 border rounded focus:ring focus:ring-blue-300"
-                    placeholder="Apa yang sedang kamu pikirkan?" required></textarea>
-                <input type="file" name="images[]" multiple class="mt-4"> <!-- Tambahkan "multiple" -->
-                <div class="mt-4 flex justify-end">
-                    <button type="button" class="bg-gray-500 text-white px-4 py-2 mr-2 rounded"
-                        onclick="toggleModal()">Batal</button>
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Post</button>
+        <!-- Modal More (Untuk User Belum Login) -->
+        @guest
+            <div x-show="showMoreModal" x-cloak @click.away="showMoreModal = false"
+                class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-80">
+                <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-80 text-center" @click.stop>
+                    <!-- Mencegah klik di dalam modal menutupnya -->
+                    <h2 class="text-white text-lg font-semibold mb-4">You Are Not Logged In</h2>
+                    <p class="text-gray-400 text-sm mb-6">Please log in to create a post.</p>
+                    <a href="{{ route('login') }}"
+                        class="block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg mb-3 transition">
+                        Login
+                    </a>
+                    <button @click="showMoreModal = false"
+                            class="w-full block bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">Later</button>
+                    </a>
                 </div>
-            </form>
+            </div>
+        @endguest
 
-        </div>
+        <!-- Modal untuk Membuat Post (User Sudah Login) -->
+        @auth
+            <div x-show="showPostModal" x-cloak @click.away="showPostModal = false"
+                class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                <div class="bg-white p-6 rounded-lg w-96 shadow-lg">
+                    <h3 class="text-lg font-bold mb-4">Buat Postingan Baru</h3>
+                    <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <textarea name="content" rows="3" class="w-full p-2 border rounded focus:ring focus:ring-blue-300"
+                            placeholder="Apa yang sedang kamu pikirkan?" required></textarea>
+                        <input type="file" name="images[]" multiple class="mt-4">
+                        <div class="mt-4 flex justify-end">
+                            <button type="button" class="bg-gray-500 text-white px-4 py-2 mr-2 rounded"
+                                @click="showPostModal = false">Batal</button>
+                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Post</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endauth
     </div>
-    </div>
+
 
 
 
@@ -172,5 +239,6 @@
                 }
             }));
         });
+        
     </script>
 @endsection

@@ -408,10 +408,7 @@
                         })
                         .catch(error => console.error("Error checking watchlist status:", error));
                 },
-
-
-
-
+                
                 removeFromWatchlist() {
                     let tmdb_id = "{{ $detail['id'] }}";
 
