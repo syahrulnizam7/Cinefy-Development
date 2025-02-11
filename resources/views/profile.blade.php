@@ -34,14 +34,14 @@
                 </div>
 
                 <!-- Settings Icon (Dropdown) -->
-                <div x-data="{ open: false }" class="absolute top-4 right-4 md:relative md:ml-auto">
+                <div x-data="{ open: false }" class="absolute top-4 lg:top-0 right-4 md:relative md:ml-auto">
                     <button @click="open = !open" class="text-white text-2xl hover:text-gray-300 transition">
                         <ion-icon name="settings"></ion-icon>
                     </button>
 
                     <!-- Dropdown Menu -->
                     <div x-show="open" @click.away="open = false"
-                        class="z-10 absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                        class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                         <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-white hover:bg-gray-700">Edit
                             Profile</a>
                         <form method="POST" action="{{ route('logout') }}">
@@ -76,8 +76,7 @@
                 <div class="absolute bottom-0 h-1 bg-blue-400 rounded-full transition-all duration-300"
                     :style="{
                         width: tab === 'watched' ? '150px' : tab === 'watchlist' ? '100px' : '80px',
-                        transform: tab === 'watched' ? 'translateX(-95px)' :
-                            tab === 'watchlist' ? 'translateX(35px)' :
+                        transform: tab === 'watched' ? 'translateX(-95px)' : tab === 'watchlist' ? 'translateX(35px)' :
                             'translateX(125px)'
                     }">
                 </div>
@@ -86,15 +85,41 @@
             <!-- Watched Content -->
             <div x-show="tab === 'watched'" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 @foreach ($watched as $item)
-                    <div class="group">
+                    <div class="group relative cursor-pointer">
                         <a href="{{ route('detail', ['type' => $item->type, 'id' => $item->tmdb_id]) }}" class="block">
+                            <!-- Poster -->
                             <img src="https://image.tmdb.org/t/p/w500{{ $item->poster_path }}"
-                                class="rounded-lg shadow-md transform group-hover:scale-105 transition">
-                            <p class="text-xs text-gray-400 mt-2 text-center">{{ $item->title }}</p>
+                                class="rounded-lg shadow-md transform group-hover:scale-105 transition duration-300">
+                            <p class="text-xs text-gray-400 mt-2 text-center font-semibold">{{ $item->title }}</p>
                         </a>
+
+                        <!-- Rating pengguna -->
+                        <div class="flex justify-center mt-1">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <ion-icon name="{{ $i <= $item->rating ? 'star' : 'star-outline' }}"
+                                    class="text-yellow-400 text-lg"></ion-icon>
+                            @endfor
+                        </div>
+
+                        <!-- Review Chat Bubble (Muncul saat hover) -->
+                        @if ($item->review)
+                            <div
+                                class="absolute top-0 right-0 transform translate-x-3 -translate-y-3 opacity-0 group-hover:opacity-100 
+                            transition-all duration-300">
+                                <div class="bg-gray-900 text-white text-xs p-3 rounded-lg shadow-lg max-w-[200px] relative">
+                                    <p class="italic">{{ $item->review }}</p>
+                                    <!-- Chat Bubble Tail -->
+                                    <div
+                                        class="absolute top-full right-3 w-0 h-0 border-t-[10px] border-t-gray-900 border-x-[8px] 
+                                    border-x-transparent">
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @endforeach
             </div>
+
 
             <!-- Watchlist Content -->
             <div x-show="tab === 'watchlist'" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">

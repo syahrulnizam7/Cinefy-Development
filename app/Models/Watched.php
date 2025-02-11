@@ -10,7 +10,7 @@ class Watched extends Model
     use HasFactory;
     protected $table = 'watched';
 
-    protected $fillable = ['user_id', 'tmdb_id', 'title', 'poster_path', 'type', 'vote_average', 'release_date'];
+    protected $fillable = ['user_id', 'tmdb_id', 'title', 'poster_path', 'type', 'vote_average', 'release_date','rating','review'];
 
     public function user()
     {

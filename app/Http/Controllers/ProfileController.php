@@ -15,19 +15,24 @@ class ProfileController extends Controller
     public function showProfile()
     {
         $user = Auth::user();
-        // Get logged-in user data
-        $watched = Watched::where('user_id', $user->id)->get(); // Fetch watched items based on user_id
-        $watchedCount = $watched->count(); // Count the number of watched items
 
-        $watchlist = Watchlist::where('user_id', $user->id)->get(); // Fetch watchlist items based on user_id
-        $watchlistCount = $watchlist->count(); // Count the number of watchlist items
+        // Fetch watched items and order by the latest first
+        $watched = Watched::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        $watchedCount = $watched->count();
 
-        // Fetch the watchlist items
-        $favorite = Favorite::where('user_id', $user->id)->get(); // Fetch watchlist items based on user_id
-        $favoriteCount = $favorite->count(); // Count the number of watchlist items
+        // Fetch watchlist items and order by the latest first
+        $watchlist = Watchlist::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        $watchlistCount = $watchlist->count();
+
+        // Fetch favorite items and order by the latest first
+        $favorite = Favorite::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        $favoriteCount = $favorite->count();
+        
 
         return view('profile', compact('user', 'watched', 'watchedCount', 'watchlist', 'watchlistCount', 'favorite', 'favoriteCount'));
     }
+
+
 
     public function saveProfile(Request $request)
     {
@@ -54,7 +59,7 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return redirect()->route('/')->with('success', 'Profile updated successfully!');
+        return redirect('/')->with('success', 'Profile updated successfully!');
     }
 
     public function editProfile()

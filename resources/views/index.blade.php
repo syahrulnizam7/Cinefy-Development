@@ -10,7 +10,6 @@
 
 
 @section('content')
-
     <!-- Tambahkan Typed.js di Head atau sebelum penutup </body> -->
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 
@@ -79,38 +78,88 @@
     </script>
 
 
+    <section class="w-full px-4 py-6 md:px-6 text-white relative z-20" x-data="{ trendingType: 'day' }">
+        <!-- Header: Trending + Tabs -->
+        <div class="flex items-center mb-4 sm:mb-6">
+            <h2 class="text-xl sm:text-2xl font-bold">Trending</h2>
+            <div class="inline-flex ml-4 bg-transparent border border-gray-300 rounded-full p-1">
+                <button @click="trendingType = 'day'"
+                    :class="trendingType === 'day' ? 'bg-blue-900 text-green-400' : 'text-white'"
+                    class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                    Today
+                </button>
+                <button @click="trendingType = 'week'"
+                    :class="trendingType === 'week' ? 'bg-blue-900 text-green-400' : 'text-white'"
+                    class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                    This Week
+                </button>
+            </div>
+        </div>
 
-    <!-- Trending Section -->
-    <section class="w-full px-4 py-6 md:px-6 text-white relative z-20">
-        <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Trending</h2>
+        <!-- Trending List -->
         <div class="relative overflow-x-scroll scrollbar-hidden pb-6">
-            <div class="flex space-x-6 overflow-visible">
-                @foreach ($trending as $item)
-                    <a href="{{ route('detail', ['type' => $item['media_type'], 'id' => $item['id']]) }}"
-                        class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group">
-                        <div class="relative w-full h-52 lg:h-72 overflow-hidden rounded-xl">
-                            <img src="https://image.tmdb.org/t/p/w500{{ $item['poster_path'] }}"
-                                alt="{{ $item['title'] ?? $item['name'] }}"
-                                class="w-full h-full object-cover rounded-xl transform transition-transform duration-300 group-hover:scale-110">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                        </div>
-                        <div class="absolute bottom-4 left-4 right-4 text-white">
-                            <h3 class="text-lg font-extrabold">{{ $item['title'] ?? $item['name'] }}</h3>
-                            <p class="text-sm opacity-80">
-                                {{ isset($item['release_date']) ? \Carbon\Carbon::parse($item['release_date'])->translatedFormat('d M Y') : '-' }}
-                            </p>
-                            <div class="mt-2 flex items-center space-x-2">
-                                <span
-                                    class="text-sm font-semibold bg-yellow-500 px-3 py-1 rounded-full text-black shadow-md">
-                                    ⭐ {{ number_format($item['vote_average'], 1) }}
-                                </span>
+            <div class="flex px-4 gap-4 overflow-visible">
+                <!-- Trending Today -->
+                <template x-if="trendingType === 'day'">
+                    <template x-for="item in {{ json_encode($trendingDay) }}" :key="item.id">
+                        <a :href="'/detail/' + item.media_type + '/' + item.id"
+                            class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group">
+                            <div class="relative w-full h-52 lg:h-72 overflow-hidden rounded-xl">
+                                <img :src="'https://image.tmdb.org/t/p/w500' + item.poster_path"
+                                    :alt="item.title ?? item.name"
+                                    class="w-full h-full object-cover rounded-xl transform transition-transform duration-300 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent">
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                @endforeach
+                            <div class="absolute bottom-4 left-4 right-4 text-white">
+                                <h3 class="text-lg font-extrabold" x-text="item.title ?? item.name"></h3>
+                                <p class="text-sm opacity-80">
+                                    <span
+                                        x-text="item.release_date ? new Date(item.release_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'"></span>
+                                </p>
+                                <div class="mt-2 flex items-center space-x-2">
+                                    <span
+                                        class="text-sm font-semibold bg-yellow-500 px-3 py-1 rounded-full text-black shadow-md">
+                                        ⭐ <span x-text="item.vote_average.toFixed(1)"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                </template>
+
+                <!-- Trending This Week -->
+                <template x-if="trendingType === 'week'">
+                    <template x-for="item in {{ json_encode($trendingWeek) }}" :key="item.id">
+                        <a :href="'/detail/' + item.media_type + '/' + item.id"
+                            class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group">
+                            <div class="relative w-full h-52 lg:h-72 overflow-hidden rounded-xl">
+                                <img :src="'https://image.tmdb.org/t/p/w500' + item.poster_path"
+                                    :alt="item.title ?? item.name"
+                                    class="w-full h-full object-cover rounded-xl transform transition-transform duration-300 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent">
+                                </div>
+                            </div>
+                            <div class="absolute bottom-4 left-4 right-4 text-white">
+                                <h3 class="text-lg font-extrabold" x-text="item.title ?? item.name"></h3>
+                                <p class="text-sm opacity-80">
+                                    <span
+                                        x-text="item.release_date ? new Date(item.release_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'"></span>
+                                </p>
+                                <div class="mt-2 flex items-center space-x-2">
+                                    <span
+                                        class="text-sm font-semibold bg-yellow-500 px-3 py-1 rounded-full text-black shadow-md">
+                                        ⭐ <span x-text="item.vote_average.toFixed(1)"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                </template>
             </div>
         </div>
     </section>
+
 
     {{-- Latest Trailers Section --}}
     <section
@@ -176,7 +225,8 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
             <div x-show="playing" x-transition:enter="transition transform ease-out duration-500 scale-95 opacity-0"
                 x-transition:enter-end="scale-100 opacity-100"
                 x-transition:leave="transition transform ease-in duration-500 scale-105 opacity-0"
-                x-transition:leave-start="scale-100 opacity-100" class="relative bg-white rounded-lg w-full max-w-3xl p-4">
+                x-transition:leave-start="scale-100 opacity-100"
+                class="relative bg-white rounded-lg w-full max-w-3xl p-4">
 
                 <!-- Close Button -->
                 <button @click="playing = false" class="absolute top-4 right-6 text-red-500 text-xl font-bold">X</button>
@@ -186,9 +236,86 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
                     allow="autoplay; encrypted-media" allowfullscreen></iframe>
             </div>
         </div>
-
-
     </section>
+
+    <section class="w-full px-4 py-6 md:px-6 text-white relative z-20" x-data="{ popularType: 'movies' }">
+        <!-- Header: Popular + Tabs -->
+        <div class="flex items-center mb-4 sm:mb-6">
+            <h2 class="text-xl sm:text-2xl font-bold">Popular</h2>
+            <div class="inline-flex ml-4 bg-transparent border border-gray-300 rounded-full p-1">
+                <button @click="popularType = 'movies'"
+                    :class="popularType === 'movies' ? 'bg-blue-900 text-green-400' : 'text-white'"
+                    class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                    Movies
+                </button>
+                <button @click="popularType = 'tv'"
+                    :class="popularType === 'tv' ? 'bg-blue-900 text-green-400' : 'text-white'"
+                    class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                    TV Shows
+                </button>
+            </div>
+        </div>
+    
+        <!-- Popular List -->
+        <div class="relative overflow-x-scroll scrollbar-hidden pb-6">
+            <div class="flex px-4 gap-4 overflow-visible">
+                <!-- Popular Movies -->
+                <template x-if="popularType === 'movies'">
+                    <template x-for="item in {{ json_encode($popularMovies) }}" :key="item.id">
+                        <a :href="'/detail/movie/' + item.id"
+                            class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group">
+                            <div class="relative w-full h-52 lg:h-72 overflow-hidden rounded-xl">
+                                <img :src="'https://image.tmdb.org/t/p/w500' + item.poster_path"
+                                    :alt="item.title"
+                                    class="w-full h-full object-cover rounded-xl transform transition-transform duration-300 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                            </div>
+                            <div class="absolute bottom-4 left-4 right-4 text-white">
+                                <h3 class="text-lg font-extrabold" x-text="item.title"></h3>
+                                <p class="text-sm opacity-80">
+                                    <span
+                                        x-text="item.release_date ? new Date(item.release_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'"></span>
+                                </p>
+                                <div class="mt-2 flex items-center space-x-2">
+                                    <span class="text-sm font-semibold bg-yellow-500 px-3 py-1 rounded-full text-black shadow-md">
+                                        ⭐ <span x-text="item.vote_average.toFixed(1)"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                </template>
+    
+                <!-- Popular TV Shows -->
+                <template x-if="popularType === 'tv'">
+                    <template x-for="item in {{ json_encode($popularTV) }}" :key="item.id">
+                        <a :href="'/detail/tv/' + item.id"
+                            class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group">
+                            <div class="relative w-full h-52 lg:h-72 overflow-hidden rounded-xl">
+                                <img :src="'https://image.tmdb.org/t/p/w500' + item.poster_path"
+                                    :alt="item.name"
+                                    class="w-full h-full object-cover rounded-xl transform transition-transform duration-300 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                            </div>
+                            <div class="absolute bottom-4 left-4 right-4 text-white">
+                                <h3 class="text-lg font-extrabold" x-text="item.name"></h3>
+                                <p class="text-sm opacity-80">
+                                    <span
+                                        x-text="item.first_air_date ? new Date(item.first_air_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'"></span>
+                                </p>
+                                <div class="mt-2 flex items-center space-x-2">
+                                    <span class="text-sm font-semibold bg-yellow-500 px-3 py-1 rounded-full text-black shadow-md">
+                                        ⭐ <span x-text="item.vote_average.toFixed(1)"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                </template>
+            </div>
+        </div>
+    </section>
+    
     <style>
         /* Animasi lingkaran pertama */
         @keyframes moveCircle1 {
@@ -250,3 +377,4 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
             animation: moveCircle2 8s ease-in-out infinite;
         }
     </style>
+@endsection

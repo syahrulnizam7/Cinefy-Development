@@ -8,46 +8,79 @@
             <div class="absolute inset-0 bg-gradient-to-l from-black/80 via-black/50 to-transparent backdrop-blur-sm"></div>
         </div>
 
-        <div class="relative  mx-auto lg:px-16 px-6 py-20 lg:py-32 flex flex-col md:flex-row items-center gap-8 h-full">
-            <!-- Poster with Hover Effect and Play Icon -->
-            <div class="w-2/5 md:w-1/4 group relative overflow-hidden cursor-pointer" x-data="{ open: false, trailerUrl: null }">
-                <div class="relative w-full rounded-lg overflow-hidden">
-                    <img src="{{ $detail['poster_path'] ? 'https://image.tmdb.org/t/p/w500' . $detail['poster_path'] : asset('images/noimg.png') }}"
-                        alt="{{ $detail['title'] ?? $detail['name'] }}"
-                        class="w-full transition-all duration-500 group-hover:blur-sm group-hover:scale-105">
-                </div>
-                
-                
-                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button
-                        @click="open = true; trailerUrl = 'https://www.youtube.com/embed/{{ $trailerKey }}?autoplay=1';"
-                        class="relative p-3 bg-transparent rounded-full border-4 border-white group hover:bg-transparent flex items-center justify-center">
-                        <ion-icon name="play" class="text-white text-3xl"></ion-icon>
-                    </button>
-                </div>
+        <div class="relative  mx-auto lg:px-16 px-6 py-20 lg:py-32 flex flex-col md:flex-row items-center gap-8 h-full"
+            x-data="{
+                showWatchedModal: false,
+                showDeleteModal: false,
+                showLoginModal: false,
+                rating: 3,
+                review: '',
+                watched: false,
+                isLoggedIn: {{ auth()->check() ? 'true' : 'false' }},
+                open: false,
+                trailerUrl: null,
+                showShareModal: false,
             
-                <div x-show="open" x-transition:enter="transition opacity-0 ease-in-out duration-500"
-                    x-transition:enter-end="opacity-100"
-                    x-transition:leave="transition opacity-100 ease-in-out duration-500"
-                    x-transition:leave-start="opacity-0" @click.away="open = false"
-                    class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 backdrop-blur-md">
-                    <div x-show="open" x-transition:enter="transition transform ease-out duration-500 scale-95 opacity-0"
-                        x-transition:enter-end="scale-100 opacity-100"
-                        x-transition:leave="transition transform ease-in duration-500 scale-105 opacity-0"
-                        x-transition:leave-start="scale-100 opacity-100"
-                        class="relative bg-gray-900 rounded-lg w-full max-w-4xl p-6">
-                        <button @click="open = false; trailerUrl = null;"
-                            class="absolute top-4 right-6 text-red-500 text-xl font-bold">X</button>
-                        <iframe x-bind:src="trailerUrl" frameborder="0" class="w-full h-80 rounded-lg shadow-lg"
-                            allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            }" x-init="checkIfWatched()">
+            <!-- Container Poster -->
+            <div class="w-2/5 md:w-1/4">
+                <div class="group relative overflow-hidden cursor-pointer">
+                    <div class="relative w-full rounded-lg overflow-hidden">
+                        <img src="{{ $detail['poster_path'] ? 'https://image.tmdb.org/t/p/w500' . $detail['poster_path'] : asset('images/noimg.png') }}"
+                            alt="{{ $detail['title'] ?? $detail['name'] }}"
+                            class="w-full transition-all duration-500 group-hover:blur-sm group-hover:scale-105">
+
+                        <!-- Watch Providers (diletakkan di dalam gambar) -->
+                        @if (!empty($watchProviders['flatrate']))
+                            <div
+                                class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-center p-2 z-20">
+                                <p class="text-xs font-semibold">Streaming Now:</p>
+                                <div class="flex justify-center space-x-2 mt-1">
+                                    @foreach ($watchProviders['flatrate'] as $provider)
+                                        <a href="{{ $watchProviders['link'] }}" target="_blank" class="group">
+                                            <img src="https://image.tmdb.org/t/p/w92{{ $provider['logo_path'] }}"
+                                                alt="{{ $provider['provider_name'] }}"
+                                                class="h-8 w-8 rounded-md shadow-lg transition-transform transform hover:scale-110">
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
+                    <div
+                        class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button
+                            @click="open = true; trailerUrl = 'https://www.youtube.com/embed/{{ $trailerKey }}?autoplay=1';"
+                            class="relative p-3 bg-transparent rounded-full border-4 border-white group hover:bg-transparent flex items-center justify-center">
+                            <ion-icon name="play" class="text-white text-3xl"></ion-icon>
+                        </button>
+                    </div>
+
+                    <div x-show="open" x-transition:enter="transition opacity-0 ease-in-out duration-500"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition opacity-100 ease-in-out duration-500"
+                        x-transition:leave-start="opacity-0" @click.away="open = false"
+                        class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 backdrop-blur-md">
+                        <div x-show="open"
+                            x-transition:enter="transition transform ease-out duration-500 scale-95 opacity-0"
+                            x-transition:enter-end="scale-100 opacity-100"
+                            x-transition:leave="transition transform ease-in duration-500 scale-105 opacity-0"
+                            x-transition:leave-start="scale-100 opacity-100"
+                            class="relative bg-gray-900 rounded-lg w-full max-w-4xl p-6">
+                            <button @click="open = false; trailerUrl = null;"
+                                class="absolute top-4 right-6 text-red-500 text-xl font-bold">X</button>
+                            <iframe x-bind:src="trailerUrl" frameborder="0" class="w-full h-80 rounded-lg shadow-lg"
+                                allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                        </div>
                     </div>
                 </div>
             </div>
-            
+
 
             <!-- Details -->
             <div class="w-full md:w-3/5 lg:w-1/2">
-                <p class="text-sm text-gray-400 uppercase">Season 1 |
+                <p class="text-sm text-gray-400 uppercase">
                     {{ \Carbon\Carbon::parse($detail['release_date'] ?? $detail['first_air_date'])->year }}</p>
                 <div class="flex items-center gap-2">
                     <h1 class="text-4xl font-bold">{{ $detail['title'] ?? $detail['name'] }}</h1>
@@ -79,20 +112,117 @@
 
 
                 <div class="mt-6 flex space-x-4">
+
                     <!-- Watched Button -->
-                    <button @click="addToWatched"
+                    <button
+                        @click="isLoggedIn ? (watched ? showDeleteModal = true : showWatchedModal = true) : showLoginModal = true"
                         :class="watched ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'"
                         class="text-center flex items-center text-white px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+
                         <template x-if="watched">
                             <span class="flex items-center">
                                 <ion-icon name="checkmark-circle" class="text-white text-lg"></ion-icon>
                                 <span class="ml-2">Watched</span>
                             </span>
                         </template>
+
                         <template x-if="!watched">
                             <span class="flex items-center justify-center">Watched</span>
                         </template>
                     </button>
+
+                    <!-- Modal I Watched -->
+                    <div x-show="showWatchedModal"
+                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm z-50">
+                        <div
+                            class="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white p-6 rounded-lg shadow-xl max-w-2xl w-full relative">
+
+                            <!-- Close Button -->
+                            <button @click="showWatchedModal = false"
+                                class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                                <ion-icon name="close" class="text-2xl"></ion-icon>
+                            </button>
+
+                            <h2 class="text-xl font-bold mb-4">I Watched...</h2>
+
+                            <!-- Movie Info -->
+                            <div class="flex items-start space-x-6">
+                                <!-- Poster -->
+                                <img src="{{ $detail['poster_path'] ? 'https://image.tmdb.org/t/p/w300' . $detail['poster_path'] : asset('images/noimg.png') }}"
+                                    alt="Poster" class="w-32 h-48 rounded-lg shadow-md">
+
+                                <!-- Movie Details -->
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold">{{ $detail['title'] ?? $detail['name'] }}</h3>
+                                    <p class="text-sm text-gray-400 mt-1">Genre:
+                                        {{ implode(', ', array_map(fn($g) => $g['name'], $detail['genres'] ?? [])) }}</p>
+                                    <p class="text-sm text-gray-300 mt-2 line-clamp-3">
+                                        {{ $detail['overview'] ?? 'No description available.' }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Rating (Stars) -->
+                            <div class="mt-6">
+                                <p class="text-sm font-semibold">Your Rating:</p>
+                                <div class="flex space-x-2 mt-1">
+                                    <template x-for="star in 5">
+                                        <span @click="rating = star" class="cursor-pointer text-yellow-400 text-2xl">
+                                            <ion-icon :name="star <= rating ? 'star' : 'star-outline'"></ion-icon>
+                                        </span>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Review Input -->
+                            <div class="mt-4">
+                                <p class="text-sm font-semibold">Your Review:</p>
+                                <textarea x-model="review"
+                                    class="w-full bg-gray-800 border border-gray-700 rounded-md p-2 text-sm text-white focus:outline-none focus:ring focus:border-blue-400 mt-2"
+                                    rows="3" placeholder="Write your thoughts..."></textarea>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="mt-6 flex justify-end space-x-4">
+                                <button @click="showWatchedModal = false"
+                                    class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-full">Cancel</button>
+                                <button @click="addToWatched"
+                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-full">Save</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Modal Konfirmasi Hapus -->
+                    <div x-show="showDeleteModal" x-transition
+                        class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60 backdrop-blur">
+                        <div
+                            class="relative bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-lg shadow-lg w-full max-w-md p-6">
+                            <!-- Tombol Tutup -->
+                            <button @click="showDeleteModal = false"
+                                class="absolute top-3 right-3 text-gray-300 hover:text-white">
+                                <ion-icon name="close" class="text-2xl"></ion-icon>
+                            </button>
+
+                            <!-- Konten Modal -->
+                            <div class="text-center">
+                                <h2 class="text-xl font-semibold text-white">Konfirmasi Hapus</h2>
+                                <p class="mt-4 text-gray-300">Apakah Anda yakin ingin menghapus item ini dari daftar
+                                    watched?</p>
+
+                                <!-- Tombol Aksi -->
+                                <div class="mt-6 flex justify-center space-x-4">
+                                    <button @click="deleteFromWatched"
+                                        class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
+                                        Yes
+                                    </button>
+                                    <button @click="showDeleteModal = false"
+                                        class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
+                                        No
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Watchlist Button -->
                     <button @click="addToWatchlist"
@@ -111,41 +241,123 @@
                     </button>
 
 
-                </div>
 
+                    <!-- Tombol Bagikan -->
+                    <button @click="isLoggedIn ? showShareModal = true : showLoginModal = true"
+                        class="bg-blue-600 hover:bg-blue-700 flex items-center text-white px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                        <ion-icon name="share" class="text-white text-lg mr-2"></ion-icon>
+                        <span>Bagikan</span>
+                    </button>
 
+                    <!-- Modal Bagikan -->
+                    <div x-show="showShareModal" x-transition
+                        class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60 backdrop-blur">
+                        <div class="relative bg-gray-900 rounded-lg shadow-lg w-full max-w-md p-6">
+                            <!-- Tombol Tutup -->
+                            <button @click="showShareModal = false"
+                                class="absolute top-3 right-3 text-gray-300 hover:text-white">
+                                <ion-icon name="close" class="text-2xl"></ion-icon>
+                            </button>
 
-                <!-- Modal Konfirmasi Hapus -->
-                <div x-show="showDeleteModal" x-transition
-                    class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60 backdrop-blur">
-                    <div
-                        class="relative bg-gradient-to-b from-gray-800 via-gray-900 to-black rounded-lg shadow-lg w-full max-w-md p-6">
-                        <!-- Tombol Tutup -->
-                        <button @click="showDeleteModal = false"
-                            class="absolute top-3 right-3 text-gray-300 hover:text-white">
-                            <ion-icon name="close" class="text-2xl"></ion-icon>
-                        </button>
+                            <!-- Formulir Bagikan -->
+                            <h2 class="text-xl font-semibold text-white text-center">Share to Post</h2>
+                            <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data"
+                                class="mt-4">
+                                @csrf
+                                <input type="hidden" name="user_id" value="{{ auth()->id() }}">
 
-                        <!-- Konten Modal -->
-                        <div class="text-center">
-                            <h2 class="text-xl font-semibold text-white">Konfirmasi Hapus</h2>
-                            <p class="mt-4 text-gray-300">Apakah Anda yakin ingin menghapus item ini dari daftar watched?
-                            </p>
+                                <!-- Ubah poster_path menjadi images[] -->
+                                <input type="hidden" name="images[]"
+                                    value="{{ json_encode([
+                                        'image' => $detail['poster_path']
+                                            ? 'https://image.tmdb.org/t/p/w500' . $detail['poster_path']
+                                            : asset('images/noimg.png'),
+                                        'type' => $type,
+                                        'id' => $detail['id'],
+                                        'title' => $detail['title'] ?? $detail['name'],
+                                        'overview' => $detail['overview'],
+                                        'vote_average' => $detail['vote_average'],
+                                        'release_date' => $detail['release_date'] ?? $detail['first_air_date'],
+                                        'genres' => array_map(fn($genre) => $genre['name'], $detail['genres']),
+                                    ]) }}">
 
-                            <!-- Tombol Aksi -->
-                            <div class="mt-6 flex justify-center space-x-4">
-                                <button @click="deleteFromWatched"
-                                    class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
-                                    Yes
-                                </button>
-                                <button @click="showDeleteModal = false"
-                                    class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
-                                    No
-                                </button>
+                                <!-- Preview Poster & Detail -->
+                                <div class="flex items-start gap-4 mt-4">
+                                    <img src="{{ $detail['poster_path'] ? 'https://image.tmdb.org/t/p/w500' . $detail['poster_path'] : asset('images/noimg.png') }}"
+                                        alt="{{ $detail['title'] ?? $detail['name'] }}"
+                                        class="w-24 h-36 rounded-lg shadow-lg">
+
+                                    <div class="text-white flex-1">
+                                        <h3 class="text-lg font-semibold">{{ $detail['title'] ?? $detail['name'] }}
+                                        </h3>
+                                        <p class="text-sm text-gray-300">⭐
+                                            {{ number_format($detail['vote_average'], 1) }}/10</p>
+                                        <div class="flex flex-wrap gap-1 mt-1">
+                                            @foreach ($detail['genres'] as $genre)
+                                                <span
+                                                    class="bg-red-600 text-white px-2 py-1 text-xs rounded-full">{{ $genre['name'] }}</span>
+                                            @endforeach
+                                        </div>
+                                        <!-- Overview (dibatasi panjangnya) -->
+                                        <p class="mt-2 text-sm text-gray-400 line-clamp-2">
+                                            {{ mb_strimwidth($detail['overview'], 0, 100, '...') }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Input Caption -->
+                                <div class="mt-4">
+                                    <label class="text-gray-400">Caption:</label>
+                                    <textarea name="content" rows="3"
+                                        class="w-full bg-gray-800 text-white p-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500/30"
+                                        placeholder="Tambahkan caption..."></textarea>
+                                </div>
+
+                                <!-- Tombol Kirim -->
+                                <div class="mt-4 flex justify-end">
+                                    <button type="submit"
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full transition-all duration-300">
+                                        Bagikan
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Modal Login -->
+                    <div x-show="showLoginModal" x-transition
+                        class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60 backdrop-blur">
+                        <div class="relative bg-gray-900 rounded-lg shadow-lg w-full max-w-md p-6">
+                            <!-- Tombol Tutup -->
+                            <button @click="showLoginModal = false"
+                                class="absolute top-3 right-3 text-gray-300 hover:text-white">
+                                <ion-icon name="close" class="text-2xl"></ion-icon>
+                            </button>
+
+                            <!-- Konten Modal -->
+                            <div class="text-center">
+                                <h2 class="text-xl font-semibold text-white">Please Login</h2>
+                                <p class="mt-4 text-gray-300">You must log in first to use this feature.</p>
+
+                                <!-- Tombol Aksi -->
+                                <div class="mt-6 flex justify-center space-x-4">
+                                    <a href="{{ route('login') }}"
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
+                                        Login
+                                    </a>
+                                    <button @click="showLoginModal = false"
+                                        class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition-all duration-300 shadow">
+                                        Later
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+
+
                 </div>
+
                 <!-- Modal Konfirmasi Hapus -->
                 <div x-show="showDeleteModalFavorite" x-transition
                     class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60 backdrop-blur">
@@ -337,6 +549,7 @@
         document.addEventListener("alpine:init", () => {
             Alpine.data("detail", () => ({
                 watched: false,
+                showWatchedModal: false,
                 showNotification: false,
                 showNotification2: false,
                 showDeleteModal: false,
@@ -349,6 +562,7 @@
                 showNotificationFavorite: false,
                 showNotificationFavorite2: false,
                 showDeleteModalFavorite: false,
+                
                 init() {
                     this.checkIfWatched();
                     this.checkIfWatchlist();
@@ -408,7 +622,7 @@
                         })
                         .catch(error => console.error("Error checking watchlist status:", error));
                 },
-                
+
                 removeFromWatchlist() {
                     let tmdb_id = "{{ $detail['id'] }}";
 
@@ -448,18 +662,12 @@
                     let vote_average = "{{ $detail['vote_average'] ?? 0 }}";
                     let release_date =
                         "{{ $detail['release_date'] ?? ($detail['first_air_date'] ?? '') }}";
+                    let rating = this.rating;
+                    let review = this.review;
 
                     if (!tmdb_id) {
                         alert("Data tidak lengkap, tidak bisa menyimpan.");
                         return;
-                    }
-
-                    if (!"{{ Auth::check() }}") { // Cek apakah pengguna login
-                        this.showLoginModal = true; // Tampilkan modal login
-                        return;
-                    }
-                    if (this.watched) {
-                        this.showDeleteModal = true; // Tampilkan modal konfirmasi
                     } else {
                         fetch("{{ route('watched.store') }}", {
                                 method: "POST",
@@ -474,6 +682,8 @@
                                     type,
                                     vote_average,
                                     release_date,
+                                    rating,
+                                    review,
                                 }),
                             })
                             .then(response => response.json())
@@ -481,6 +691,8 @@
                                 if (data.message) {
                                     this.watched = true;
                                     this.showNotification = true;
+                                    this.showWatchedModal = false; // Tutup modal
+
 
                                     // Sembunyikan notifikasi setelah 3 detik
                                     setTimeout(() => {
@@ -492,6 +704,7 @@
                                 console.error("Error:", error);
                                 alert("Terjadi kesalahan, coba lagi.");
                             });
+
                     }
                 },
 

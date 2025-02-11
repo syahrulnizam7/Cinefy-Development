@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProfileController;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -35,7 +36,6 @@ Route::middleware(['auth', 'profile.complete'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
 
     Route::get('/user/{id}', [UserController::class, 'show'])->name('user.detail');
-
 });
 
 
@@ -63,6 +63,14 @@ Route::get('/detail/{type}/{id}', function ($type, $id) {
     $detail = $detailResponse->json();
 
 
+    // ✅ Ambil Watch Providers
+    $providersResponse = Http::get(config('services.tmdb.base_url') . "{$type}/{$id}/watch/providers", [
+        'api_key' => $apiKey,
+    ]);
+    $providers = $providersResponse->json();
+
+    // ✅ Ambil provider yang tersedia di Indonesia by Justwatch
+    $watchProviders = $providers['results']['ID'] ?? [];
 
     // Jika tagline atau overview kosong, coba ambil dari bahasa Inggris
     if (empty($detail['tagline']) || empty($detail['overview'])) {
@@ -104,23 +112,28 @@ Route::get('/detail/{type}/{id}', function ($type, $id) {
         }
     }
 
-    return view('detail', compact('detail', 'cast', 'director', 'writers', 'trailerKey', 'type'));
+    return view('detail', compact('detail', 'cast', 'director', 'writers', 'trailerKey', 'type', 'watchProviders'));
 })->name('detail');
 
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 
 Route::get('/explore', [ExploreController::class, 'index'])->name('explore.index');
-
 Route::get('/', function () {
     $apiKey = config('services.tmdb.api_key');
 
-    // Ambil daftar trending all (baik movie maupun TV series)
-    $trendingResponse = Http::get(config('services.tmdb.base_url') . "trending/all/day", [
+    // Ambil daftar trending harian
+    $trendingDayResponse = Http::get(config('services.tmdb.base_url') . "trending/all/day", [
         'api_key' => $apiKey,
         'language' => 'id-ID',
     ]);
+    $trendingDay = $trendingDayResponse->json()['results'] ?? [];
 
-    $trending = $trendingResponse->json()['results'] ?? [];
+    // Ambil daftar trending mingguan
+    $trendingWeekResponse = Http::get(config('services.tmdb.base_url') . "trending/all/week", [
+        'api_key' => $apiKey,
+        'language' => 'id-ID',
+    ]);
+    $trendingWeek = $trendingWeekResponse->json()['results'] ?? [];
 
     // Ambil daftar film terbaru (now playing)
     $latestTrailersResponse = Http::get(config('services.tmdb.base_url') . "movie/now_playing", [
@@ -128,7 +141,6 @@ Route::get('/', function () {
         'language' => 'id-ID',
         'page' => 1
     ]);
-
     $latestTrailers = $latestTrailersResponse->json()['results'] ?? [];
 
     // Ambil video trailer untuk setiap film terbaru
@@ -142,8 +154,26 @@ Route::get('/', function () {
         $movie['trailer_key'] = $trailer ? $trailer['key'] : null;
     }
 
-    return view('index', compact('trending', 'latestTrailers'));
+    // Ambil daftar Popular TV
+    $popularTVResponse = Http::get(config('services.tmdb.base_url') . "tv/popular", [
+        'api_key' => $apiKey,
+        'language' => 'id-ID',
+        'page' => 1
+    ]);
+    $popularTV = $popularTVResponse->json()['results'] ?? [];
+
+    // Ambil daftar Popular Movies
+    $popularMoviesResponse = Http::get(config('services.tmdb.base_url') . "movie/popular", [
+        'api_key' => $apiKey,
+        'language' => 'id-ID',
+        'page' => 1
+    ]);
+    $popularMovies = $popularMoviesResponse->json()['results'] ?? [];
+
+    return view('index', compact('trendingDay', 'trendingWeek', 'latestTrailers', 'popularTV', 'popularMovies'));
 });
+
+
 
 // Route untuk halaman welcome
 Route::get('/welcome', function () {
@@ -180,16 +210,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/favorite/check', [FavoriteController::class, 'check'])->name('favorite.index');
     Route::delete('/favorite', [FavoriteController::class, 'destroy'])->name('favorite.destroy');
 
-    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
-    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy')->middleware('auth');
-
 
     Route::get('/profile/edit', [ProfileController::class, 'editProfile'])->name('profile.edit');
     Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
 
     Route::post('/posts/{post}/toggle-like', [LikeController::class, 'toggleLike'])->name('likes.toggle');
     Route::post('/posts/{post}/comment', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy')->middleware('auth');
 });
+
 
 
 Route::post('/logout', function () {

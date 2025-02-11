@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
+    <script src="//unpkg.com/alpinejs" defer></script>
     @vite('resources/css/app.css')
 
     <style>
@@ -94,22 +94,26 @@
             }
         }
     </style>
+
 </head>
 
-<body class="overflow-y-auto w-full relative overflow-hidden bg-gradient-to-r from-black via-gray-900 to-black">
-    <div x-data="{ loading: true }" x-init="loading = false">
-        <!-- Animasi Loading -->
-        <div x-show="loading" id="loader">
-            <div class="loader">
-                <div class="face">
-                    <div class="circle"></div>
-                </div>
-                <div class="face">
-                    <div class="circle"></div>
-                </div>
+<body class="overflow-y-auto w-full relative overflow-hidden bg-gradient-to-r from-black via-gray-900 to-black" 
+      x-data="{ loading: false }"
+      x-init="loading = false; window.addEventListener('beforeunload', () => loading = true)">
+    
+    <!-- Loader -->
+    <div x-show="loading" id="loader">
+        <div class="loader">
+            <div class="face">
+                <div class="circle"></div>
+            </div>
+            <div class="face">
+                <div class="circle"></div>
             </div>
         </div>
+    </div>
 
+    <div>
         <!-- Navbar -->
         @include('components.navbar')
 
@@ -120,36 +124,8 @@
 
         <!-- Footer -->
         @include('components.footer')
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const loader = document.getElementById("loader");
-                
-                if (loader) {
-                    loader.style.display = "flex"; // Tampilkan loader saat mulai loading
-                }
-
-                window.addEventListener("load", () => {
-                    setTimeout(() => {
-                        loader.style.display = "none"; // Hilangkan loader setelah selesai loading
-                    }, 800); // Tambah delay biar smooth
-                });
-
-                // Animasi muncul saat navigasi antar halaman
-                document.querySelectorAll("a").forEach(link => {
-                    link.addEventListener("click", function(event) {
-                        if (this.getAttribute("x-on:click") || this.hasAttribute("@click")) {
-                            return;
-                        }
-                        
-                        if (!this.href.startsWith("#") && this.target !== "_blank") {
-                            loader.style.display = "flex";
-                        }
-                    });
-                });
-            });
-        </script>
     </div>
+
 </body>
 
 </html>

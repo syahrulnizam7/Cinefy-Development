@@ -15,10 +15,12 @@ class WatchedController extends Controller
         $validatedData = $request->validate([
             'tmdb_id' => 'required',
             'title' => 'required',
-            'poster_path' => 'nullable',  // Tidak wajib
+            'poster_path' => 'nullable',
             'type' => 'required|in:movie,tv',
-            'vote_average' => 'nullable|numeric', // Tidak wajib, tapi jika ada harus numeric
-            'release_date' => 'nullable|date',    // Tidak wajib, tapi jika ada harus bertipe date
+            'vote_average' => 'nullable|numeric',
+            'release_date' => 'nullable|date',
+            'rating' => 'required|integer|min:1|max:5', // Tambah validasi rating
+            'review' => 'nullable|string|max:500', // Tambah validasi review
         ]);
 
         // Cek jika tmdb_id sudah ada di tabel watched untuk user yang sedang login
@@ -41,6 +43,8 @@ class WatchedController extends Controller
                 'type' => $validatedData['type'],
                 'vote_average' => $validatedData['vote_average'],
                 'release_date' => $validatedData['release_date'],
+                'rating' => $validatedData['rating'],
+                'review' => $validatedData['review'],
             ]);
 
             return response()->json(['message' => 'Added to watched list']);

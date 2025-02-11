@@ -1,5 +1,34 @@
 <nav x-data="{
     navBottomVisible: true,
+    searchOpen: false,
+    query: '',
+    modalOpen: false,
+    results: [],
+    performSearch() {
+        if (this.query.trim().length < 3) {
+            this.results = [];
+            return;
+        }
+        fetch(`/api/search?q=${this.query}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.results); // Debugging output
+                // Filter results to exclude 'person' type
+                this.results = data.results.filter(item => item.media_type !== 'person')
+                    .map(item => ({
+                        id: item.id,
+                        title: item.title || item.name,
+                        release_date: item.release_date || item.first_air_date || '',
+                        type: item.type,
+                        // Jika ada poster_path, gabungkan dengan URL TMDB
+                        // Jika tidak ada poster_path, gunakan gambar fallback
+                        poster_path: item.poster_path.startsWith('http') ? item.poster_path : `https://image.tmdb.org/t/p/w92${item.poster_path}`,
+
+                        average_rating: typeof item.average_rating === 'number' ? item.average_rating.toFixed(1) : 'N/A'
+                    }));
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    },
 }">
 
     {{-- Navbar top --}}
@@ -7,36 +36,6 @@
         class="fixed z-20 top-0 left-0 w-full py-6 px-6 bg-gradient-to-b from-gray-900 to-transparent text-white transition-all duration-300"
         x-data="{
             navOpen: true,
-            searchOpen1: false,
-            query: '',
-            modalOpen: false,
-            results: [],
-            performSearch1() {
-                if (this.query.trim().length < 3) {
-                    this.results = [];
-                    return;
-                }
-                fetch(`/api/search?q=${this.query}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data.results); // Debugging output
-                        // Filter results to exclude 'person' type
-                        this.results = data.results.filter(item => item.media_type !== 'person')
-                            .map(item => ({
-                                id: item.id,
-                                title: item.title || item.name,
-                                release_date: item.release_date || item.first_air_date || '',
-                                type: item.type,
-                                // Jika ada poster_path, gabungkan dengan URL TMDB
-                                // Jika tidak ada poster_path, gunakan gambar fallback
-                                poster_path: item.poster_path.startsWith('http') ? item.poster_path : `https://image.tmdb.org/t/p/w92${item.poster_path}`,
-        
-                                average_rating: typeof item.average_rating === 'number' ? item.average_rating.toFixed(1) : 'N/A'
-                            }));
-                    })
-                    .catch(error => console.error('Error fetching data:', error));
-            },
-        
         }">
 
         <div class="container w-full mx-auto flex justify-between items-center">
@@ -90,57 +89,7 @@
                 @endauth
             </div>
 
-            <!-- Search Modal -->
-            <div x-show="searchOpen1"
-                class="fixed inset-0 bg-gradient-to-b from-gray-900/80 to-black/80 backdrop-blur-md z-30 flex items-center justify-center"
-                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-
-                <!-- Modal Content -->
-                <div @click.away="searchOpen1 = false"
-                    class="bg-gray-800 p-6 rounded-2xl w-full max-w-md shadow-lg transform transition-all duration-300"
-                    x-transition:enter="transition transform ease-out duration-300"
-                    x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
-                    x-transition:leave="transition transform ease-in duration-200"
-                    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90">
-
-                    <!-- Input Box -->
-                    <input type="text" id="searchInput" placeholder="Search movies, series, and more..."
-                        x-model="query" @input.debounce.300ms="performSearch1"
-                        class="w-full px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-lg">
-
-                    <!-- Results Container -->
-                    <div x-show="results.length > 0" x-transition:enter="transition ease-out duration-300 transform"
-                        x-transition:enter-start="opacity-0 translate-y-2"
-                        x-transition:enter-end="opacity-100 translate-y-0"
-                        x-transition:leave="transition ease-in duration-200 transform"
-                        x-transition:leave-start="opacity-100 translate-y-0"
-                        x-transition:leave-end="opacity-0 translate-y-2"
-                        class="mt-4 bg-gray-900 text-white shadow-inner max-h-60 overflow-auto scrollbar-hidden rounded-lg">
-
-                        <template x-for="result in results" :key="result.id">
-                            <a :href="'/detail/' + result.type + '/' + result.id"
-                                class="flex items-center p-4 hover:bg-gray-700 transition duration-200 rounded-md">
-
-                                <img :src="result.poster_path" alt="Poster"
-                                    class="w-16 h-24 object-cover mr-4 rounded-md">
-
-                                <div>
-                                    <p class="font-bold text-lg" x-text="result.title"></p>
-                                    <p class="text-sm text-gray-400" x-text="result.release_date"></p>
-                                    <p class="text-sm text-yellow-400 font-semibold">
-                                        <span x-text="'Rating: ' + result.average_rating"></span>
-                                    </p>
-                                </div>
-                            </a>
-                        </template>
-
-
-
-                    </div>
-                </div>
-            </div>
+            
 
             <div class="hidden lg:block order-2">
                 <ul class="flex gap-16">
@@ -149,7 +98,7 @@
                         <a href="/">Home</a>
                     </li>
                     <li>
-                        <a href="javascript:void(0);" @click="searchOpen1 = true"
+                        <a href="javascript:void(0);" @click="searchOpen = true"
                             class="text-white font-semibold text-base hover:text-blue-600">Search</a>
                     </li>
                     <li
@@ -193,36 +142,6 @@
 
     <nav x-data="{
         navOpen: true,
-        searchOpen: false,
-        query: '',
-        modalOpen: false,
-        results: [],
-        performSearch() {
-            if (this.query.trim().length < 3) {
-                this.results = [];
-                return;
-            }
-            fetch(`/api/search?q=${this.query}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data.results); // Debugging output
-                    // Filter results to exclude 'person' type
-                    this.results = data.results.filter(item => item.media_type !== 'person')
-                        .map(item => ({
-                            id: item.id,
-                            title: item.title || item.name,
-                            release_date: item.release_date || item.first_air_date || '',
-                            type: item.type,
-                            // Jika ada poster_path, gabungkan dengan URL TMDB
-                            // Jika tidak ada poster_path, gunakan gambar fallback
-                            poster_path: item.poster_path.startsWith('http') ? item.poster_path : `https://image.tmdb.org/t/p/w92${item.poster_path}`,
-    
-                            average_rating: typeof item.average_rating === 'number' ? item.average_rating.toFixed(1) : 'N/A'
-                        }));
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        },
-    
     }">
 
         <!-- Navbar Bottom -->

@@ -1,6 +1,44 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        use Illuminate\Support\Str;
+
+        use Illuminate\Support\Facades\Http;
+
+        function getOverviewFromApi($type, $id)
+        {
+            $apiKey = config('services.tmdb.api_key');
+
+            // Coba ambil overview dalam bahasa Indonesia
+            $response = Http::get("https://api.themoviedb.org/3/{$type}/{$id}", [
+                'api_key' => $apiKey,
+                'language' => 'id-ID',
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                if (!empty($data['overview'])) {
+                    return $data['overview']; // Jika overview ada dalam bahasa Indonesia, gunakan
+                }
+            }
+
+            // Jika overview dalam bahasa Indonesia kosong, ambil dalam bahasa Inggris
+            $responseEn = Http::get("https://api.themoviedb.org/3/{$type}/{$id}", [
+                'api_key' => $apiKey,
+                'language' => 'en-US',
+            ]);
+
+            if ($responseEn->successful()) {
+                $dataEn = $responseEn->json();
+                return $dataEn['overview'] ?? 'Deskripsi tidak tersedia.';
+            }
+
+            return 'Deskripsi tidak tersedia.';
+        }
+
+    @endphp
+
     <div class="max-w-3xl mx-auto p-6 mt-10">
 
         <div x-data="{ showNotification: false, message: '' }" x-show="showNotification" x-transition.duration.500ms
@@ -62,29 +100,99 @@
                     </div>
 
 
-
-
                     <!-- Post Content -->
                     <div class="mt-2 text-gray-300">
-                        <p>{{ $post->content }}</p>
                         @if ($post->images->count() > 0)
-                            <div
-                                class="mt-4 
-        @if ($post->images->count() === 1) flex justify-center 
-        @elseif ($post->images->count() === 2) 
-            grid grid-cols-2 gap-2
-        @elseif ($post->images->count() === 3) 
-            grid grid-cols-3 gap-2
-        @else 
-            grid grid-cols-2 md:grid-cols-3 gap-2 @endif">
-                                @foreach ($post->images as $image)
-                                    <img src="{{ asset('storage/' . $image->image_path) }}" alt="Post Image"
-                                        class="w-full max-h-96 object-cover rounded-lg shadow-md">
-                                @endforeach
-                            </div>
+                            @php
+                                $sharedType = null;
+                                foreach ($post->images as $image) {
+                                    $imageData = json_decode($image->image_path, true);
+                                    if (
+                                        is_array($imageData) &&
+                                        isset($imageData['type']) &&
+                                        in_array($imageData['type'], ['movie', 'tv'])
+                                    ) {
+                                        $sharedType = $imageData['type'] === 'movie' ? 'Movie' : 'TV Show';
+                                        break;
+                                    }
+                                }
+                            @endphp
+
+                            @if ($sharedType)
+                                <p class="text-sm text-gray-400 mb-2">📢 Shared a {{ $sharedType }}</p>
+                            @endif
                         @endif
 
+                        <p>{{ $post->content }}</p>
 
+                        @if ($post->images->count() > 0)
+                            @foreach ($post->images as $image)
+                                @php
+                                    // Cek apakah data disimpan dalam bentuk JSON
+                                    $imageData = json_decode($image->image_path, true);
+
+                                    if (is_array($imageData) && isset($imageData['image'])) {
+                                        $imageUrl = $imageData['image'];
+                                        $type = $imageData['type'] ?? null;
+                                        $movieId = $imageData['id'] ?? null;
+                                        $title = $imageData['title'] ?? 'Unknown';
+                                        $voteAverage = $imageData['vote_average'] ?? 'N/A';
+                                        $releaseDate = $imageData['release_date'] ?? 'Unknown';
+                                        $overview = getOverviewFromApi($type, $movieId); // Ambil overview dari API
+                                    } else {
+                                        $imageUrl = filter_var($image->image_path, FILTER_VALIDATE_URL)
+                                            ? $image->image_path
+                                            : asset('storage/' . $image->image_path);
+                                        $type = null;
+                                        $movieId = null;
+                                        $title = null;
+                                        $voteAverage = null;
+                                        $releaseDate = null;
+                                        $overview = null;
+                                    }
+                                @endphp
+
+                                @if ($type && $movieId)
+                                    <a href="{{ route('detail', ['type' => $type, 'id' => $movieId]) }}" class="mt-3 block">
+                                        <div
+                                            class="bg-white/10 backdrop-blur-lg border border-white/20 p-4 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                                                <!-- Gambar -->
+                                                <div class="relative">
+                                                    <img src="{{ $imageUrl }}" alt="Post Image"
+                                                        class="w-full max-h-80 object-cover rounded-lg shadow-md transition-transform duration-300 hover:scale-105">
+                                                </div>
+
+                                                <!-- Informasi -->
+                                                <div class="text-white">
+                                                    <h2 class="text-2xl font-bold mb-1">{{ $title }}</h2>
+                                                    <p class="text-sm text-gray-300">⭐ {{ $voteAverage }} | 📅
+                                                        {{ $releaseDate }}</p>
+
+                                                    <!-- Tampilkan Genre -->
+                                                    @if (!empty($imageData['genres']))
+                                                        <div class="flex flex-wrap gap-1 mt-2">
+                                                            @foreach ($imageData['genres'] as $genre)
+                                                                <span
+                                                                    class="bg-red-600 text-white px-2 py-1 text-xs rounded-full">{{ $genre }}</span>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+
+                                                    <p class="text-sm mt-3 text-gray-300 leading-relaxed">
+                                                        {{ $overview }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @else
+                                    <!-- Jika bukan dari ShowShareModal, tampilkan biasa -->
+                                    <img src="{{ $imageUrl }}" alt="Post Image"
+                                        class="mt-3 w-full max-h-96 object-cover rounded-lg shadow-md">
+                                @endif
+                            @endforeach
+                        @endif
                     </div>
 
                     <!-- Post Actions -->
@@ -173,7 +281,7 @@
                         Login
                     </a>
                     <button @click="showMoreModal = false"
-                            class="w-full block bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">Later</button>
+                        class="w-full block bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">Later</button>
                     </a>
                 </div>
             </div>
@@ -239,6 +347,5 @@
                 }
             }));
         });
-        
     </script>
 @endsection

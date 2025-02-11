@@ -22,27 +22,44 @@ class PostController extends Controller
     {
         $request->validate([
             'content' => 'required|string|max:280',
-            'images.*' => 'nullable|image|max:2048' // Validasi banyak gambar
+            'images.*' => 'nullable' // Validasi banyak gambar
         ]);
 
         $post = Post::create([
             'user_id' => Auth::id(),
-            'content' => $request->content
+            'content' => $request->content,
         ]);
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $imagePath = $image->store('posts', 'public');
+        if ($request->has('images')) {
+            foreach ($request->images as $image) {
+                // Decode JSON jika data berasal dari ShowShareModal
+                $imageData = json_decode($image, true);
 
-                PostImage::create([
-                    'post_id' => $post->id,
-                    'image_path' => $imagePath
-                ]);
+                if (is_array($imageData) && isset($imageData['image'])) {
+                    unset($imageData['overview']); // Hapus overview sebelum disimpan
+                    
+                    PostImage::create([
+                        'post_id' => $post->id,
+                        'image_path' => json_encode($imageData) // Simpan dalam bentuk JSON
+                    ]);
+                } elseif (filter_var($image, FILTER_VALIDATE_URL)) {
+                    PostImage::create([
+                        'post_id' => $post->id,
+                        'image_path' => $image // Simpan URL langsung
+                    ]);
+                } elseif ($request->hasFile('images')) {
+                    $imagePath = $image->store('posts', 'public');
+                    PostImage::create([
+                        'post_id' => $post->id,
+                        'image_path' => $imagePath
+                    ]);
+                }
             }
         }
 
-        return back()->with('success', 'Post berhasil dibuat!');
+        return redirect('/posts')->with('success', 'Post berhasil dibuat!');
     }
+
 
     public function destroy(Post $post)
     {
