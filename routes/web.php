@@ -21,6 +21,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use App\Http\Middleware\EnsureProfileComplete;
 use App\Http\Controllers\Auth\RegisterController;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
@@ -35,9 +36,9 @@ Route::middleware(['auth', 'profile.complete'])->group(function () {
     // Semua route yang membutuhkan profil lengkap
     Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
 
-    Route::get('/user/{id}', [UserController::class, 'show'])->name('user.detail');
+   
 });
-
+Route::get('/user/{id}', [UserController::class, 'show'])->name('user.detail');
 
 Route::get('/cast/{id}', [CastController::class, 'show'])->name('cast.show');
 
@@ -170,7 +171,16 @@ Route::get('/', function () {
     ]);
     $popularMovies = $popularMoviesResponse->json()['results'] ?? [];
 
-    return view('index', compact('trendingDay', 'trendingWeek', 'latestTrailers', 'popularTV', 'popularMovies'));
+    $topUsers = DB::table('watched')
+        ->select('users.id', 'users.username', 'users.name', 'users.profile_photo', DB::raw('COUNT(watched.id) as total_watched'))
+        ->join('users', 'watched.user_id', '=', 'users.id')
+        ->groupBy('users.id', 'users.username', 'users.name', 'users.profile_photo')
+        ->orderByDesc('total_watched')
+        ->limit(10)
+        ->get();
+
+
+    return view('index', compact('trendingDay', 'trendingWeek', 'latestTrailers', 'popularTV', 'popularMovies', 'topUsers'));
 });
 
 

@@ -18,13 +18,13 @@
         <div class="relative flex flex-col lg:grid lg:grid-cols-2 gap-8 md:gap-12 items-center w-full md:px-6 ">
             <!-- Bagian Kiri (Text) - Muncul hanya di Desktop -->
             <div class="hidden lg:block z-20">
-                <h1 class="text-3xl md:text-5xl font-bold leading-tight">
+                <h1 class="hero-title text-3xl md:text-5xl font-bold leading-tight">
                     Track Your Favorite <br><span class="text-blue-500" id="typing-text"></span></br>
                 </h1>
-                <p class="text-lg mt-4 md:mt-6 opacity-80">
+                <p class="hero-text text-lg mt-4 md:mt-6 opacity-80">
                     Manage your watched content, discover new shows, and add to your collection seamlessly.
                 </p>
-                <div class="mt-6 flex gap-3">
+                <div class="hero-buttons mt-6 flex gap-3">
                     <a href="#"
                         class="bg-blue-600 text-white px-5 py-2.5 rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">Start
                         Watching</a>
@@ -37,7 +37,7 @@
             <!-- Bagian Kanan (Gambar) - Muncul dulu di Mobile -->
             <div class="w-full h-full relative flex justify-center">
                 <img src="{{ asset('images/hero.png') }}" alt="Hero Image"
-                    class="w-full max-w-md sm:max-w-lg md:max-w-xl h-auto object-contain opacity-70 z-0">
+                    class="hero-image w-full max-w-md sm:max-w-lg md:max-w-xl h-auto object-contain opacity-70 z-0">
 
                 <!-- Overlay yang menutupi seluruh layar -->
                 <div
@@ -61,36 +61,24 @@
         </div>
     </section>
 
-    <!-- Inisialisasi Typed.js -->
-    <script>
-        var options = {
-            strings: ["Movies", "Series", "Anime"],
-            typeSpeed: 100, // Kecepatan mengetik
-            backSpeed: 50, // Kecepatan menghapus
-            backDelay: 1500, // Waktu jeda sebelum menghapus
-            loop: true, // Agar animasi terus berulang
-            showCursor: true, // Menampilkan kursor
-            cursorChar: "|", // Simbol kursor
-        };
-
-        new Typed("#typing-text", options);
-        new Typed("#typing-text-mobile", options);
-    </script>
-
 
     <section class="w-full px-4 py-6 md:px-6 text-white relative z-20" x-data="{ trendingType: 'day' }">
         <!-- Header: Trending + Tabs -->
         <div class="flex items-center mb-4 sm:mb-6">
             <h2 class="text-xl sm:text-2xl font-bold">Trending</h2>
-            <div class="inline-flex ml-4 bg-transparent border border-gray-300 rounded-full p-1">
+            <div class="relative inline-flex ml-4 bg-transparent border border-gray-300 rounded-full p-1 overflow-hidden">
+                <!-- Active Indicator -->
+                <div class="absolute top-0 bottom-0 bg-blue-900 rounded-full transition-all duration-300"
+                    x-bind:style="trendingType === 'day' ? 'left: 0; width: 45%;' : 'left: 40%; width: 60%;'"></div>
+
                 <button @click="trendingType = 'day'"
-                    :class="trendingType === 'day' ? 'bg-blue-900 text-green-400' : 'text-white'"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                    class="relative px-4 py-2 text-sm font-semibold rounded-full transition z-10"
+                    :class="trendingType === 'day' ? 'text-green-400' : 'text-white'">
                     Today
                 </button>
                 <button @click="trendingType = 'week'"
-                    :class="trendingType === 'week' ? 'bg-blue-900 text-green-400' : 'text-white'"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                    class="relative px-4 py-2 text-sm font-semibold rounded-full transition z-10"
+                    :class="trendingType === 'week' ? 'text-green-400' : 'text-white'">
                     This Week
                 </button>
             </div>
@@ -98,12 +86,12 @@
 
         <!-- Trending List -->
         <div class="relative overflow-x-scroll scrollbar-hidden pb-6">
-            <div class="flex px-4 gap-4 overflow-visible">
+            <div class="flex gap-4 overflow-visible trending-list">
                 <!-- Trending Today -->
                 <template x-if="trendingType === 'day'">
                     <template x-for="item in {{ json_encode($trendingDay) }}" :key="item.id">
                         <a :href="'/detail/' + item.media_type + '/' + item.id"
-                            class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group">
+                            class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group trending-item">
                             <div class="relative w-full h-52 lg:h-72 overflow-hidden rounded-xl">
                                 <img :src="'https://image.tmdb.org/t/p/w500' + item.poster_path"
                                     :alt="item.title ?? item.name"
@@ -115,7 +103,8 @@
                                 <h3 class="text-lg font-extrabold" x-text="item.title ?? item.name"></h3>
                                 <p class="text-sm opacity-80">
                                     <span
-                                        x-text="item.release_date ? new Date(item.release_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'"></span>
+                                        x-text="item.release_date ? new Date(item.release_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'">
+                                    </span>
                                 </p>
                                 <div class="mt-2 flex items-center space-x-2">
                                     <span
@@ -132,7 +121,7 @@
                 <template x-if="trendingType === 'week'">
                     <template x-for="item in {{ json_encode($trendingWeek) }}" :key="item.id">
                         <a :href="'/detail/' + item.media_type + '/' + item.id"
-                            class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group">
+                            class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group trending-item">
                             <div class="relative w-full h-52 lg:h-72 overflow-hidden rounded-xl">
                                 <img :src="'https://image.tmdb.org/t/p/w500' + item.poster_path"
                                     :alt="item.title ?? item.name"
@@ -144,7 +133,8 @@
                                 <h3 class="text-lg font-extrabold" x-text="item.title ?? item.name"></h3>
                                 <p class="text-sm opacity-80">
                                     <span
-                                        x-text="item.release_date ? new Date(item.release_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'"></span>
+                                        x-text="item.release_date ? new Date(item.release_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'">
+                                    </span>
                                 </p>
                                 <div class="mt-2 flex items-center space-x-2">
                                     <span
@@ -159,7 +149,6 @@
             </div>
         </div>
     </section>
-
 
     {{-- Latest Trailers Section --}}
     <section
@@ -242,15 +231,19 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
         <!-- Header: Popular + Tabs -->
         <div class="flex items-center mb-4 sm:mb-6">
             <h2 class="text-xl sm:text-2xl font-bold">Popular</h2>
-            <div class="inline-flex ml-4 bg-transparent border border-gray-300 rounded-full p-1">
+            <div class="relative inline-flex ml-4 bg-transparent border border-gray-300 rounded-full p-1 overflow-hidden">
+                <!-- Active Indicator -->
+                <div class="absolute top-0 bottom-0 bg-blue-900 rounded-full transition-all duration-300"
+                    x-bind:style="popularType === 'movies' ? 'left: 0; width: 50%;' : 'left: 60%; width: 40%;'"></div>
+    
                 <button @click="popularType = 'movies'"
-                    :class="popularType === 'movies' ? 'bg-blue-900 text-green-400' : 'text-white'"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                    class="relative px-4 py-2 text-sm font-semibold rounded-full transition z-10"
+                    :class="popularType === 'movies' ? 'text-green-400' : 'text-white'">
                     Movies
                 </button>
                 <button @click="popularType = 'tv'"
-                    :class="popularType === 'tv' ? 'bg-blue-900 text-green-400' : 'text-white'"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                    class="relative px-4 py-2 text-sm font-semibold rounded-full transition z-10"
+                    :class="popularType === 'tv' ? 'text-green-400' : 'text-white'">
                     TV Shows
                 </button>
             </div>
@@ -258,17 +251,17 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
     
         <!-- Popular List -->
         <div class="relative overflow-x-scroll scrollbar-hidden pb-6">
-            <div class="flex px-4 gap-4 overflow-visible">
+            <div class="flex  gap-4 overflow-visible trending-list">
                 <!-- Popular Movies -->
                 <template x-if="popularType === 'movies'">
                     <template x-for="item in {{ json_encode($popularMovies) }}" :key="item.id">
                         <a :href="'/detail/movie/' + item.id"
-                            class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group">
+                            class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group trending-item">
                             <div class="relative w-full h-52 lg:h-72 overflow-hidden rounded-xl">
-                                <img :src="'https://image.tmdb.org/t/p/w500' + item.poster_path"
-                                    :alt="item.title"
+                                <img :src="'https://image.tmdb.org/t/p/w500' + item.poster_path" :alt="item.title"
                                     class="w-full h-full object-cover rounded-xl transform transition-transform duration-300 group-hover:scale-110">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent">
+                                </div>
                             </div>
                             <div class="absolute bottom-4 left-4 right-4 text-white">
                                 <h3 class="text-lg font-extrabold" x-text="item.title"></h3>
@@ -277,7 +270,8 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
                                         x-text="item.release_date ? new Date(item.release_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'"></span>
                                 </p>
                                 <div class="mt-2 flex items-center space-x-2">
-                                    <span class="text-sm font-semibold bg-yellow-500 px-3 py-1 rounded-full text-black shadow-md">
+                                    <span
+                                        class="text-sm font-semibold bg-yellow-500 px-3 py-1 rounded-full text-black shadow-md">
                                         ⭐ <span x-text="item.vote_average.toFixed(1)"></span>
                                     </span>
                                 </div>
@@ -292,10 +286,10 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
                         <a :href="'/detail/tv/' + item.id"
                             class="relative bg-gray-900 rounded-xl shadow-2xl w-36 lg:w-48 flex-shrink-0 overflow-hidden group">
                             <div class="relative w-full h-52 lg:h-72 overflow-hidden rounded-xl">
-                                <img :src="'https://image.tmdb.org/t/p/w500' + item.poster_path"
-                                    :alt="item.name"
+                                <img :src="'https://image.tmdb.org/t/p/w500' + item.poster_path" :alt="item.name"
                                     class="w-full h-full object-cover rounded-xl transform transition-transform duration-300 group-hover:scale-110">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent">
+                                </div>
                             </div>
                             <div class="absolute bottom-4 left-4 right-4 text-white">
                                 <h3 class="text-lg font-extrabold" x-text="item.name"></h3>
@@ -304,7 +298,8 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
                                         x-text="item.first_air_date ? new Date(item.first_air_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'"></span>
                                 </p>
                                 <div class="mt-2 flex items-center space-x-2">
-                                    <span class="text-sm font-semibold bg-yellow-500 px-3 py-1 rounded-full text-black shadow-md">
+                                    <span
+                                        class="text-sm font-semibold bg-yellow-500 px-3 py-1 rounded-full text-black shadow-md">
                                         ⭐ <span x-text="item.vote_average.toFixed(1)"></span>
                                     </span>
                                 </div>
@@ -316,6 +311,106 @@ bg-[radial-gradient(circle,rgba(0,0,0,0.4)_10%,rgba(0,0,0,0.8)_90%)] group-hover
         </div>
     </section>
     
+
+    <section class="w-full px-4 py-6 md:px-6 text-white relative z-20">
+        <h2
+            class="text-2xl sm:text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            🎖 Leaderboard
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            @foreach ($topUsers->chunk(5) as $chunk)
+                <div class="space-y-4">
+                    @foreach ($chunk as $index => $user)
+                        <a href="{{ route('user.detail', ['id' => $user->id]) }}"
+                            class="flex items-center bg-gray-900 p-5 rounded-lg shadow-lg transition-all duration-300 hover:scale-105 hover:bg-gradient-to-r from-purple-700 to-blue-700">
+                            <!-- Profile Image with Hover Effect -->
+                            <div class="relative">
+                                <div
+                                    class="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-4 border-transparent transition-all duration-300 hover:border-yellow-400">
+                                    <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}"
+                                        class="object-cover w-full h-full">
+                                </div>
+                            </div>
+
+                            <!-- User Info -->
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-200">{{ $index + 1 }}. {{ $user->name }}
+                                </h3>
+                                <p class="text-xs ml-1 text-gray-400"><span
+                                        class="text-blue-400">@</span>{{ $user->username }}</p>
+                                <p class="text-sm text-gray-300">🎬 Watched: <span
+                                        class="font-bold text-yellow-400">{{ $user->total_watched }}</span></p>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            @endforeach
+        </div>
+    </section>
+
+    <!-- Inisialisasi Typed.js -->
+    <script>
+        var options = {
+            strings: ["Movies", "Series", "Anime"],
+            typeSpeed: 100, // Kecepatan mengetik
+            backSpeed: 50, // Kecepatan menghapus
+            backDelay: 1500, // Waktu jeda sebelum menghapus
+            loop: true, // Agar animasi terus berulang
+            showCursor: true, // Menampilkan kursor
+            cursorChar: "|", // Simbol kursor
+        };
+
+        new Typed("#typing-text", options);
+        new Typed("#typing-text-mobile", options);
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.from(".trending-item", {
+                opacity: 0,
+                y: 50,
+                stagger: 0.2,
+                duration: 1,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: ".trending-list",
+                    start: "top 80%", // Mulai animasi ketika 80% dari viewport terlihat
+                    toggleActions: "play none none none",
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Animasi Hero Section
+            gsap.from(".hero-title", { opacity: 0, y: 50, duration: 1, ease: "power2.out" });
+            gsap.from(".hero-text", { opacity: 0, y: 50, duration: 1, delay: 0.2, ease: "power2.out" });
+            gsap.from(".hero-buttons", { opacity: 0, y: 50, duration: 1, delay: 0.4, ease: "power2.out", stagger: 0.2 });
+            gsap.from(".hero-image", { opacity: 0, scale: 0.9, duration: 1, delay: 0.6, ease: "power2.out" });
+    
+            // Animasi Trending List
+            gsap.from(".trending-item", {
+                opacity: 0,
+                y: 30,
+                duration: 1,
+                ease: "power2.out",
+                stagger: 0.2
+            });
+    
+            // Animasi Latest Trailers
+            gsap.from(".latest-trailer", {
+                opacity: 0,
+                x: -50,
+                duration: 1,
+                ease: "power2.out",
+                stagger: 0.3
+            });
+        });
+    </script>
     <style>
         /* Animasi lingkaran pertama */
         @keyframes moveCircle1 {

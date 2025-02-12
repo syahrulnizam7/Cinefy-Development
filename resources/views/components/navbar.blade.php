@@ -33,7 +33,7 @@
 
     {{-- Navbar top --}}
     <nav id="navbar"
-        class="fixed z-20 top-0 left-0 w-full py-6 px-6 bg-gradient-to-b from-gray-900 to-transparent text-white transition-all duration-300"
+        class="fixed z-30 top-0 left-0 w-full py-6 px-6 bg-gradient-to-b from-gray-900 to-transparent text-white transition-all duration-300"
         x-data="{
             navOpen: true,
         }">
